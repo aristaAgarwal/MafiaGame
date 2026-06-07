@@ -3,12 +3,17 @@ import {
   StyleSheet,
   Text,
   View,
-  FlatList,
+  ScrollView,
+  TouchableOpacity,
   ActivityIndicator,
+  Share,
+  Platform,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
+import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LobbyScreen() {
   const {
@@ -24,174 +29,414 @@ export default function LobbyScreen() {
   const minPlayers = 3;
   const canStart = playersList.length >= minPlayers;
 
+  const handleInvite = async () => {
+    try {
+      await Share.share({
+        message: `Join my Mafia: City of Shadows game lobby!\nRoom Code: ${roomCode}`,
+      });
+    } catch (error) {
+      console.log('Error sharing room code:', error);
+    }
+  };
+
   return (
-    <View style={styles.innerContainer}>
-      <View style={styles.lobbyHeader}>
-        <Text style={styles.lobbyCodeLabel}>ROOM CODE</Text>
-        <Text style={styles.lobbyCode}>{roomCode}</Text>
-        <Text style={styles.lobbyCount}>
-          PLAYERS CONNECTED: {playersList.length}
+    <View style={styles.screenContainer}>
+      {/* Title */}
+      <Text style={styles.mainTitle}>MAFIA: CITY OF SHADOWS</Text>
+
+      {/* Main Glassmorphic Lobby Card */}
+      <Card style={styles.lobbyCard}>
+        {/* Game Lobby Header */}
+        <Text style={styles.lobbyTitle}>GAME LOBBY</Text>
+        <Text style={styles.lobbyStatus}>
+          STATUS: <Text style={styles.statusWaiting}>WAITING</Text> <Text style={styles.playerCount}>({playersList.length}/12 Players)</Text>
         </Text>
-      </View>
+        <Text style={styles.roomCodeSub}>ROOM CODE: {roomCode}</Text>
 
-      <FlatList
-        data={playersList}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        renderItem={({ item }) => (
-          <View style={[styles.playerRow, item.id === myId && styles.mePlayerRow]}>
-            <View style={styles.playerInfo}>
-              <Text style={styles.playerNameText}>{item.name.toUpperCase()}</Text>
-              {item.id === myId && <Text style={styles.meBadge}>YOU</Text>}
-            </View>
-            {item.isHost ? (
-              <View style={styles.hostBadge}>
-                <Text style={styles.hostBadgeText}>HOST</Text>
+        {/* Table Headers */}
+        <View style={styles.tableHeaderRow}>
+          <Text style={[styles.columnHeader, styles.colUsername]}>USERNAME</Text>
+          <Text style={[styles.columnHeader, styles.colRole]}>ROLE</Text>
+          <Text style={[styles.columnHeader, styles.colStatus]}>STATUS</Text>
+        </View>
+
+        {/* Scrollable Player List inside the Card */}
+        <ScrollView
+          style={styles.playerListScroll}
+          contentContainerStyle={styles.playerListContent}
+          showsVerticalScrollIndicator={true}
+        >
+          {playersList.map((player) => {
+            const isMe = player.id === myId;
+            return (
+              <View key={player.id} style={styles.playerRow}>
+                {/* Avatar & Username */}
+                <View style={[styles.colUsername, styles.playerNameContainer]}>
+                  <View style={[styles.avatarWrapper, isMe && styles.meAvatarWrapper]}>
+                    <Ionicons name="person" size={14} color={isMe ? COLORS.gold : COLORS.textPrimary} />
+                  </View>
+                  <Text style={[styles.playerName, isMe && styles.mePlayerName]} numberOfLines={1}>
+                    {player.name}
+                  </Text>
+                </View>
+
+                {/* Role (Hidden in Lobby) */}
+                <Text style={[styles.colRole, styles.roleText]}>
+                  Hidden?
+                </Text>
+
+                {/* Status / Host Badge */}
+                <View style={[styles.colStatus, styles.statusContainer]}>
+                  {player.isHost ? (
+                    <Text style={styles.hostStatusText}>Host</Text>
+                  ) : (
+                    <Text style={styles.readyStatusText}>Ready</Text>
+                  )}
+                </View>
               </View>
-            ) : (
-              <Text style={styles.statusText}>READY</Text>
-            )}
-          </View>
-        )}
-      />
+            );
+          })}
+        </ScrollView>
 
-      <View style={styles.footer}>
-        {isHost ? (
-          <View style={{ width: '100%' }}>
-            {!canStart && (
-              <Text style={styles.warningText}>
-                WAITING FOR AT LEAST {minPlayers} PLAYERS TO BEGIN.
-              </Text>
-            )}
-            <Button
-              title="START GAME"
-              onPress={startGame}
-              variant={canStart ? 'primary' : 'disabled'}
-              disabled={!canStart}
-            />
+        {/* Divider */}
+        <View style={styles.cardDivider} />
+
+        {/* Actions */}
+        <View style={styles.actionsContainer}>
+          {isHost ? (
+            <View style={styles.fullWidth}>
+              {!canStart && (
+                <Text style={styles.warningText}>
+                  Waiting for at least {minPlayers} players to begin.
+                </Text>
+              )}
+              <Button
+                title="START GAME"
+                onPress={startGame}
+                variant={canStart ? 'primary' : 'disabled'}
+                disabled={!canStart}
+                style={styles.actionBtn}
+              />
+            </View>
+          ) : (
+            <View style={styles.waitingHostContainer}>
+              <ActivityIndicator size="small" color={COLORS.gold} style={{ marginRight: 8 }} />
+              <Text style={styles.waitingHostText}>Waiting for host to start...</Text>
+            </View>
+          )}
+
+          <Button
+            title="INVITE FRIENDS"
+            onPress={handleInvite}
+            variant="outline"
+            style={[styles.actionBtn, styles.inviteBtn]}
+            icon={<Ionicons name="share-social-outline" size={16} color={COLORS.white} />}
+          />
+        </View>
+
+        {/* Circular Bottom Controls inside Card */}
+        <View style={styles.bottomControls}>
+          <View style={styles.controlItem}>
+            <TouchableOpacity style={styles.controlCircle} activeOpacity={0.8}>
+              <Ionicons name="chatbubble-ellipses" size={18} color={COLORS.white} />
+            </TouchableOpacity>
+            <View style={styles.dotIndicatorActive} />
           </View>
-        ) : (
-          <View style={styles.waitingContainer}>
-            <ActivityIndicator size="small" color={COLORS.gold} />
-            <Text style={styles.waitingText}>WAITING FOR HOST TO START...</Text>
+
+          <View style={styles.controlItem}>
+            <TouchableOpacity style={styles.controlCircle} activeOpacity={0.8}>
+              <Ionicons name="settings" size={18} color={COLORS.white} />
+            </TouchableOpacity>
+            <View style={styles.dotIndicatorActive} />
           </View>
-        )}
+
+          <View style={styles.controlItem}>
+            <TouchableOpacity style={[styles.controlCircle, styles.controlCircleInactive]} activeOpacity={0.8}>
+              <Ionicons name="bar-chart" size={18} color={COLORS.navIconInactive} />
+            </TouchableOpacity>
+            <View style={styles.dotIndicatorInactive} />
+          </View>
+        </View>
+      </Card>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNav}>
+        <View style={styles.navItem}>
+          <Ionicons name="home" size={20} color={COLORS.gold} />
+          <Text style={[styles.navText, styles.activeNavText]}>HOME</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
+          <Text style={styles.navText}>SHADOWS</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="mail" size={20} color={COLORS.navIconInactive} />
+          <Text style={styles.navText}>MESSAGES</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="settings" size={20} color={COLORS.navIconInactive} />
+          <Text style={styles.navText}>SETTINGS</Text>
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  innerContainer: {
+  screenContainer: {
     flex: 1,
-    padding: 24,
-    justifyContent: 'space-between',
-    paddingBottom: 40,
-  },
-  lobbyHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 0,
+    paddingBottom: 0,
     alignItems: 'center',
-    marginVertical: 20,
+    justifyContent: 'center',
   },
-  lobbyCodeLabel: {
-    fontFamily: 'Cinzel_400Regular',
-    fontSize: 10,
-    color: COLORS.textMuted,
-    letterSpacing: 3,
-  },
-  lobbyCode: {
+  mainTitle: {
     fontFamily: 'Cinzel_700Bold',
-    fontSize: 48,
-    color: COLORS.gold,
-    marginVertical: 12,
-    letterSpacing: 4,
+    fontSize: 18,
+    color: COLORS.white,
+    letterSpacing: 2,
+    textAlign: 'center',
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 40,
   },
-  lobbyCount: {
+  lobbyCard: {
+    flex: 1,
+    width: '100%',
+    maxWidth: 360,
+    maxHeight: 480, // Slightly smaller height to fit bottom nav bar perfectly
+  },
+  lobbyTitle: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 22,
+    color: COLORS.white,
+    textAlign: 'center',
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  lobbyStatus: {
     fontFamily: 'Cinzel_400Regular',
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textPrimary,
+    textAlign: 'center',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  statusWaiting: {
+    fontFamily: 'Cinzel_700Bold',
+    color: COLORS.gold,
+  },
+  playerCount: {
+    color: COLORS.textMuted,
+  },
+  roomCodeSub: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 12,
+    color: COLORS.goldLight,
+    textAlign: 'center',
+    letterSpacing: 2,
+    marginBottom: 20, // Reduced from 28 to fit inside max height
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+  columnHeader: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 9,
+    color: COLORS.textMuted,
     letterSpacing: 1.5,
   },
-  listContainer: {
-    paddingVertical: 10,
+  colUsername: {
+    flex: 2,
+  },
+  colRole: {
+    flex: 1.2,
+    textAlign: 'center',
+  },
+  colStatus: {
+    flex: 1,
+    textAlign: 'right',
+  },
+  playerListScroll: {
+    flex: 1,
+    width: '100%',
+  },
+  playerListContent: {
+    paddingBottom: 8,
   },
   playerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: COLORS.surfaceElevated,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    paddingVertical: 12, // Reduced from 15 to fit inside compact layout
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
   },
-  mePlayerRow: {
-    borderColor: COLORS.borderGold,
-    backgroundColor: COLORS.overlayGold05,
-  },
-  playerInfo: {
+  playerNameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  playerNameText: {
-    fontFamily: 'Cinzel_700Bold',
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    letterSpacing: 1.5,
+  avatarWrapper: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    backgroundColor: COLORS.surfaceElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
-  meBadge: {
-    fontFamily: 'Cinzel_700Bold',
-    fontSize: 8,
-    color: COLORS.gold,
-    backgroundColor: COLORS.overlayGold15,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginLeft: 8,
-    letterSpacing: 1,
-  },
-  statusText: {
-    fontFamily: 'Cinzel_700Bold',
-    color: COLORS.doctor,
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-  hostBadge: {
-    backgroundColor: COLORS.overlayRed15,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+  meAvatarWrapper: {
+    borderColor: 'rgba(232, 192, 106, 0.3)',
     borderWidth: 1,
-    borderColor: COLORS.mafia,
   },
-  hostBadgeText: {
+  playerName: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 13,
+    color: COLORS.white,
+    letterSpacing: 0.5,
+    flex: 1,
+  },
+  mePlayerName: {
     fontFamily: 'Cinzel_700Bold',
-    color: COLORS.mafia,
-    fontSize: 10,
+    color: COLORS.gold,
+  },
+  roleText: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 12,
+    color: COLORS.textMuted,
+    textAlign: 'center',
     letterSpacing: 0.5,
   },
-  footer: {
-    marginTop: 20,
+  statusContainer: {
+    alignItems: 'flex-end',
+  },
+  readyStatusText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 12,
+    color: COLORS.goldLight,
+    letterSpacing: 0.5,
+  },
+  hostStatusText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 12,
+    color: COLORS.mafia,
+    letterSpacing: 0.5,
+  },
+  cardDivider: {
+    width: '100%',
+    height: 1,
+    backgroundColor: COLORS.cardDivider,
+    marginVertical: 12, // Reduced from 20 to fit inside compact layout
+  },
+  actionsContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  fullWidth: {
+    width: '100%',
+  },
+  actionBtn: {
+    width: '100%',
+    marginBottom: 8, // Reduced from 12
+  },
+  inviteBtn: {
+    borderColor: COLORS.cardBorder,
+    borderWidth: 2.5,
   },
   warningText: {
     fontFamily: 'Cinzel_400Regular',
     color: COLORS.redBright,
     fontSize: 10,
     textAlign: 'center',
-    marginBottom: 12,
-    letterSpacing: 1,
+    marginBottom: 8,
+    letterSpacing: 0.5,
   },
-  waitingContainer: {
+  waitingHostContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
+    width: '100%',
+    paddingVertical: 8,
+    marginBottom: 8,
   },
-  waitingText: {
+  waitingHostText: {
     fontFamily: 'Cinzel_400Regular',
     color: COLORS.textMuted,
-    marginLeft: 10,
     fontSize: 12,
+    letterSpacing: 1,
+  },
+  bottomControls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    width: '100%',
+    gap: 16,
+  },
+  controlItem: {
+    alignItems: 'center',
+  },
+  controlCircle: {
+    width: 40, // Reduced from 44
+    height: 40, // Reduced from 44
+    borderRadius: 20,
+    backgroundColor: COLORS.surfaceElevated,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1.5,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  controlCircleInactive: {
+    opacity: 0.6,
+  },
+  dotIndicatorActive: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.redBright,
+    marginTop: 4,
+  },
+  dotIndicatorInactive: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'transparent',
+    marginTop: 4,
+  },
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 64,
+    backgroundColor: COLORS.bottomNavBg,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.bottomNavBorder,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingBottom: Platform.OS === 'ios' ? 15 : 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navText: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 8,
+    color: COLORS.navIconInactive,
+    marginTop: 4,
     letterSpacing: 1.5,
+  },
+  activeNavText: {
+    color: COLORS.gold,
   },
 });

@@ -21,7 +21,7 @@ export default function Card({
       <BlurView
         intensity={10}
         tint="light"
-        style={styles.card}
+        style={[styles.card, { flex: 1 }]}
       >
         {header && <Text style={[styles.cardHeader, headerStyle]}>{header.toUpperCase()}</Text>}
         {children}

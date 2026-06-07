@@ -57,11 +57,18 @@ export default function App() {
     }
   };
 
+  const getBgImage = () => {
+    if (phase === 'LOBBY') {
+      return require('./assets/lobby.png');
+    }
+    return require('./assets/bg.png');
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ImageBackground
-        source={require('./assets/bg.png')}
+        source={getBgImage()}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
