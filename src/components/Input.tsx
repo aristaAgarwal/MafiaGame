@@ -36,7 +36,7 @@ export default function Input({
           isCode && styles.codeInput,
           inputStyle,
         ]}
-        placeholderTextColor="rgba(255, 255, 255, 0.35)"
+        placeholderTextColor={COLORS.whiteTranslucent35}
         {...rest}
       />
     </View>
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: 'Cinzel_400Regular',
     fontSize: 8,
-    color: '#FFFFFF',
+    color: COLORS.white,
     marginBottom: 6,
     letterSpacing: 3,
   },

@@ -113,20 +113,20 @@ export default function HomeScreen() {
             variant="outline"
             style={styles.actionBtnFull}
             textStyle={styles.actionBtnFullText}
-            icon={<Ionicons name="add-circle-outline" size={14} color="#FFFFFF" />}
+            icon={<Ionicons name="add-circle-outline" size={14} color={COLORS.white} />}
           />
 
           {/* OR Divider with Faded Lines */}
           <View style={styles.orDividerContainer}>
             <LinearGradient
-              colors={['transparent', 'rgba(255, 255, 255, 0.25)']}
+              colors={['transparent', COLORS.whiteTranslucent25]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
             />
             <Text style={styles.orText}>-or-</Text>
             <LinearGradient
-              colors={['rgba(255, 255, 255, 0.25)', 'transparent']}
+              colors={[COLORS.whiteTranslucent25, 'transparent']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
@@ -153,7 +153,7 @@ export default function HomeScreen() {
               <Ionicons
                 name="enter-outline"
                 size={14}
-                color={inputCode.trim().length === 4 ? '#FFFFFF' : 'rgba(255, 255, 255, 0.3)'}
+                color={inputCode.trim().length === 4 ? COLORS.white : COLORS.whiteTranslucent30}
               />
             }
           />
@@ -174,15 +174,15 @@ export default function HomeScreen() {
           <Text style={[styles.navText, styles.activeNavText]}>HOME</Text>
         </View>
         <View style={styles.navItem}>
-          <Ionicons name="shield" size={20} color="#4A3E32" />
+          <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>SHADOWS</Text>
         </View>
         <View style={styles.navItem}>
-          <Ionicons name="mail" size={20} color="#4A3E32" />
+          <Ionicons name="mail" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>MESSAGES</Text>
         </View>
         <View style={styles.navItem}>
-          <Ionicons name="settings" size={20} color="#4A3E32" />
+          <Ionicons name="settings" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>SETTINGS</Text>
         </View>
       </View>
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   playerNameInput: {
     fontFamily: 'Cinzel_700Bold',
     fontSize: 30,
-    color: '#FFFFFF',
+    color: COLORS.white,
     letterSpacing: 2.5,
     textAlign: 'center',
     marginBottom: 4,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 14,
     borderRadius: 8,
-    borderColor: '#D6CBB9',
+    borderColor: COLORS.cardBorder,
     borderWidth: 2.5,
   },
   actionBtnFullText: {
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   cardDivider: {
     width: '100%',
     height: 1,
-    backgroundColor: '#80736eff',
+    backgroundColor: COLORS.cardDivider,
     marginBottom: 20,
   },
   orDividerContainer: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   orText: {
     fontFamily: 'Cinzel_400Regular',
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 10,
     marginHorizontal: 16,
     letterSpacing: 2,
@@ -314,9 +314,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 64,
-    backgroundColor: '#141210',
+    backgroundColor: COLORS.bottomNavBg,
     borderTopWidth: 1,
-    borderTopColor: '#2A2018',
+    borderTopColor: COLORS.bottomNavBorder,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
   navText: {
     fontFamily: 'Cinzel_400Regular',
     fontSize: 8,
-    color: '#4A3E32',
+    color: COLORS.navIconInactive,
     marginTop: 4,
     letterSpacing: 1.5,
   },

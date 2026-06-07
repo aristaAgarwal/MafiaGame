@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
   shadowWrapper: {
     borderRadius: 20,
     borderWidth: 2.5, // Thicker border
-    borderColor: '#d5bf9aff', // Warm grey/creamy beige border
-    shadowColor: '#E8C06A', // Yellow glow color
+    borderColor: COLORS.cardBorder, // Warm grey/creamy beige border
+    shadowColor: COLORS.goldLight, // Yellow glow color
     shadowOffset: { width: 0, height: 0 }, // Center glow around the border
     shadowOpacity: 0.6, // Higher opacity for a clear glow
     shadowRadius: 20, // High radius for soft blur glow

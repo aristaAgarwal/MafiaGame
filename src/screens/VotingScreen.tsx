@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   targetSelectRowSelected: {
     borderColor: COLORS.gold,
-    backgroundColor: 'rgba(200, 160, 74, 0.05)',
+    backgroundColor: COLORS.overlayGold05,
   },
   playerNameText: {
     fontFamily: 'Cinzel_700Bold',

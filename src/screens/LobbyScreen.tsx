@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   mePlayerRow: {
     borderColor: COLORS.borderGold,
-    backgroundColor: 'rgba(200, 160, 74, 0.05)',
+    backgroundColor: COLORS.overlayGold05,
   },
   playerInfo: {
     flexDirection: 'row',
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Cinzel_700Bold',
     fontSize: 8,
     color: COLORS.gold,
-    backgroundColor: 'rgba(200, 160, 74, 0.15)',
+    backgroundColor: COLORS.overlayGold15,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   hostBadge: {
-    backgroundColor: 'rgba(192, 57, 43, 0.15)',
+    backgroundColor: COLORS.overlayRed15,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,

@@ -135,7 +135,7 @@ export default function NightScreen() {
             </Card>
           ) : (
             <Card>
-              <ActivityIndicator size="small" color="#ffffff" style={{ marginBottom: 10 }} />
+              <ActivityIndicator size="small" color={COLORS.white} style={{ marginBottom: 10 }} />
               <Text style={styles.infoText}>
                 Sweet dreams... Waiting for Host to end the night.
               </Text>
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   targetSelectRowSelected: {
     borderColor: COLORS.gold,
-    backgroundColor: 'rgba(200, 160, 74, 0.05)',
+    backgroundColor: COLORS.overlayGold05,
   },
   playerNameText: {
     fontFamily: 'Cinzel_700Bold',
