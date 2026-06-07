@@ -91,10 +91,20 @@ io.on('connection', (socket) => {
     const room = rooms[roomCode];
     if (room && room.hostId === socket.id) {
       room.players = assignRoles(room.players);
-      room.phase = 'NIGHT';
+      room.phase = 'ROLE_REVEAL';
       room.nightActions = {};
       room.votes = {};
       io.to(roomCode).emit('game_started', room);
+    }
+  });
+
+  socket.on('start_night', ({ roomCode }) => {
+    const room = rooms[roomCode];
+    if (room && room.hostId === socket.id) {
+      room.phase = 'NIGHT';
+      room.nightActions = {};
+      room.votes = {};
+      io.to(roomCode).emit('night_started', { room });
     }
   });
 
@@ -211,7 +221,51 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    // Real implementation should handle cleanup or reconnection
+    // Find room the user was in
+    for (const roomCode in rooms) {
+      const room = rooms[roomCode];
+      if (room.players[socket.id]) {
+        delete room.players[socket.id];
+        
+        const remainingPlayers = Object.keys(room.players);
+        
+        if (remainingPlayers.length === 0) {
+          delete rooms[roomCode];
+          console.log(`Room ${roomCode} deleted (no players left).`);
+        } else {
+          if (room.hostId === socket.id) {
+            room.hostId = remainingPlayers[0];
+            if (room.players[room.hostId]) {
+              room.players[room.hostId].isHost = true;
+            }
+          }
+          
+          if (room.phase !== 'LOBBY' && room.phase !== 'END') {
+            const winner = checkWinCondition(room);
+            if (winner) {
+              room.phase = 'END';
+              room.winner = winner;
+              io.to(roomCode).emit('game_ended', { room, winner });
+            } else if (remainingPlayers.length < 3) {
+              room.phase = 'LOBBY';
+              room.winner = null;
+              room.nightActions = {};
+              room.votes = {};
+              Object.values(room.players).forEach(player => {
+                player.isAlive = true;
+                player.role = null;
+              });
+              io.to(roomCode).emit('room_reset', room);
+            } else {
+              io.to(roomCode).emit('update_room', room);
+            }
+          } else {
+            io.to(roomCode).emit('update_room', room);
+          }
+        }
+        break;
+      }
+    }
   });
 });
 

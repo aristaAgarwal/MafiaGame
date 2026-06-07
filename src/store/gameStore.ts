@@ -16,7 +16,7 @@ interface GameState {
   socket: Socket | null;
   playerName: string;
   roomCode: string | null;
-  phase: 'HOME' | 'LOBBY' | 'NIGHT' | 'DAY' | 'VOTING' | 'END';
+  phase: 'HOME' | 'LOBBY' | 'ROLE_REVEAL' | 'NIGHT' | 'DAY' | 'VOTING' | 'END';
   players: Record<string, Player>;
   hostId: string | null;
   killedId: string | null;
@@ -34,6 +34,7 @@ interface GameState {
   createRoom: () => void;
   joinRoom: (code: string) => void;
   startGame: () => void;
+  startNight: () => void;
   submitNightAction: (targetId: string, role: string) => void;
   endNight: () => void;
   startVoting: () => void;
@@ -119,7 +120,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     socket.on('game_started', (room) => {
-      set({ players: room.players, phase: 'NIGHT', policeResult: null, killedId: null, eliminatedId: null, winner: null, votes: {}, nightActions: room.nightActions || {} });
+      set({ players: room.players, phase: room.phase, policeResult: null, killedId: null, eliminatedId: null, winner: null, votes: {}, nightActions: room.nightActions || {} });
     });
 
     socket.on('day_started', ({ room, killed }) => {
@@ -191,6 +192,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   endVoting: () => {
     const { socket, roomCode } = get();
     if (socket && roomCode) socket.emit('end_voting', { roomCode });
+  },
+
+  startNight: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('start_night', { roomCode });
   },
 
   resetGame: () => {

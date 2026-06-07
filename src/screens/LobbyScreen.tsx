@@ -22,10 +22,7 @@ export default function LobbyScreen() {
     players,
     hostId,
     startGame,
-    leaveLobby,
   } = useGameStore();
-
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const playersList = Object.values(players);
   const isHost = myId === hostId;
@@ -42,23 +39,8 @@ export default function LobbyScreen() {
     }
   };
 
-  const handleBackPress = () => {
-    setShowExitConfirm(true);
-  };
-
   return (
     <View style={styles.screenContainer}>
-      {/* Top Navigation Bar */}
-      <View style={styles.headerBar}>
-        <TouchableOpacity 
-          style={styles.headerBackButton} 
-          onPress={handleBackPress} 
-          activeOpacity={0.7}
-        >
-          <Ionicons name="chevron-back" size={24} color={COLORS.white} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>MAFIA: CITY OF SHADOWS</Text>
-      </View>
 
       {/* Main Glassmorphic Lobby Card */}
       <Card style={styles.lobbyCard}>
@@ -194,33 +176,6 @@ export default function LobbyScreen() {
           <Text style={styles.navText}>SETTINGS</Text>
         </View>
       </View>
-
-      {/* Exit Confirmation Dialog */}
-      {showExitConfirm && (
-        <View style={styles.confirmOverlay}>
-          <Card style={styles.confirmDialog}>
-            <Text style={styles.confirmTitle}>EXIT LOBBY</Text>
-            <Text style={styles.confirmText}>Are you sure you want to leave the game lobby?</Text>
-            <View style={styles.confirmButtons}>
-              <Button
-                title="CANCEL"
-                variant="outline"
-                onPress={() => setShowExitConfirm(false)}
-                style={styles.confirmBtn}
-              />
-              <Button
-                title="EXIT"
-                variant="primary"
-                onPress={() => {
-                  setShowExitConfirm(false);
-                  leaveLobby();
-                }}
-                style={styles.confirmBtn}
-              />
-            </View>
-          </Card>
-        </View>
-      )}
     </View>
   );
 }
@@ -233,35 +188,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  headerBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: Platform.OS === 'ios' ? 104 : 84,
-    paddingTop: Platform.OS === 'ios' ? 44 : 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.bottomNavBorder,
-    backgroundColor: COLORS.bottomNavBg,
-    zIndex: 999,
-  },
-  headerTitle: {
-    fontFamily: 'Cinzel_700Bold',
-    fontSize: 16,
-    color: COLORS.white,
-    letterSpacing: 2,
-    position: 'absolute',
-    left: 56,
-    right: 56,
-    textAlign: 'center',
-  },
-  headerBackButton: {
-    padding: 8,
-    zIndex: 1000,
   },
   lobbyCard: {
     flex: 1,
