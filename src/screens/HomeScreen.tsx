@@ -97,7 +97,7 @@ export default function HomeScreen() {
             value={inputName}
             onChangeText={setInputName}
             placeholder="Enter Name"
-            placeholderTextColor="rgba(200, 160, 74, 0.3)"
+            placeholderTextColor="rgba(255, 255, 255, 0.35)"
             maxLength={15}
             autoCapitalize="characters"
             textAlign="center"
@@ -114,20 +114,20 @@ export default function HomeScreen() {
             variant="outline"
             style={styles.actionBtnFull}
             textStyle={styles.actionBtnFullText}
-            icon={<Ionicons name="add-circle-outline" size={14} color={COLORS.gold} />}
+            icon={<Ionicons name="add-circle-outline" size={14} color="#FFFFFF" />}
           />
 
           {/* OR Divider with Faded Lines */}
           <View style={styles.orDividerContainer}>
             <LinearGradient
-              colors={['transparent', COLORS.borderGold]}
+              colors={['transparent', 'rgba(255, 255, 255, 0.25)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
             />
             <Text style={styles.orText}>-or-</Text>
             <LinearGradient
-              colors={[COLORS.borderGold, 'transparent']}
+              colors={['rgba(255, 255, 255, 0.25)', 'transparent']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
@@ -154,7 +154,7 @@ export default function HomeScreen() {
               <Ionicons
                 name="enter-outline"
                 size={14}
-                color={inputCode.trim().length === 4 ? COLORS.gold : 'rgba(200, 160, 74, 0.4)'}
+                color={inputCode.trim().length === 4 ? '#FFFFFF' : 'rgba(255, 255, 255, 0.3)'}
               />
             }
           />
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 14,
     borderRadius: 8,
-    borderColor: COLORS.borderGold,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     borderWidth: 1.5,
   },
   actionBtnFullText: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   orText: {
     fontFamily: 'Cinzel_400Regular',
-    color: COLORS.gold,
+    color: '#FFFFFF',
     fontSize: 10,
     marginHorizontal: 16,
     letterSpacing: 2,

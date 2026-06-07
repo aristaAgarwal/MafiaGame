@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   outlineButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: COLORS.borderGold,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
     borderRadius: 4,
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   outlineText: {
-    color: COLORS.gold,
+    color: '#FFFFFF',
     fontSize: 8,
     letterSpacing: 1,
   },
