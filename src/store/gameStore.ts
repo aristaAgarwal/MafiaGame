@@ -1,0 +1,199 @@
+import { create } from 'zustand';
+import { io, Socket } from 'socket.io-client';
+
+// We will use localhost for now. In a real app testing on devices, we'd use the local IP.
+const SOCKET_URL = 'http://localhost:3000';
+
+export interface Player {
+  id: string;
+  name: string;
+  role: string | null;
+  isAlive: boolean;
+  isHost: boolean;
+}
+
+interface GameState {
+  socket: Socket | null;
+  playerName: string;
+  roomCode: string | null;
+  phase: 'HOME' | 'LOBBY' | 'NIGHT' | 'DAY' | 'VOTING' | 'END';
+  players: Record<string, Player>;
+  hostId: string | null;
+  killedId: string | null;
+  eliminatedId: string | null;
+  myId: string | null;
+  policeResult: { targetId: string, role: string } | null;
+  winner: 'MAFIA' | 'VILLAGERS' | null;
+  votes: Record<string, string>;
+  nightActions: Record<string, string>;
+  toast: string | null;
+
+  setPlayerName: (name: string) => void;
+  showToast: (message: string) => void;
+  connectSocket: (serverUrl?: string) => void;
+  createRoom: () => void;
+  joinRoom: (code: string) => void;
+  startGame: () => void;
+  submitNightAction: (targetId: string, role: string) => void;
+  endNight: () => void;
+  startVoting: () => void;
+  submitVote: (targetId: string) => void;
+  endVoting: () => void;
+  resetGame: () => void;
+}
+
+export const useGameStore = create<GameState>((set, get) => ({
+  socket: null,
+  playerName: '',
+  roomCode: null,
+  phase: 'HOME',
+  players: {},
+  hostId: null,
+  killedId: null,
+  eliminatedId: null,
+  myId: null,
+  policeResult: null,
+  winner: null,
+  votes: {},
+  nightActions: {},
+  toast: null,
+
+  setPlayerName: (name) => set({ playerName: name }),
+
+  showToast: (message) => {
+    set({ toast: message });
+    setTimeout(() => {
+      if (get().toast === message) {
+        set({ toast: null });
+      }
+    }, 3000);
+  },
+
+  connectSocket: (serverUrl) => {
+    const currentSocket = get().socket;
+    const url = serverUrl || SOCKET_URL;
+    
+    if (currentSocket) {
+      // If already connected to the same URL, reuse the connection
+      if (currentSocket.active && ((currentSocket.io as any).uri === url || (currentSocket.io as any).uri === url + '/')) {
+        return;
+      }
+      currentSocket.disconnect();
+    }
+    
+    console.log('Connecting to socket server at:', url);
+    const socket = io(url, {
+      transports: ['websocket'],
+      timeout: 5000
+    });
+    
+    socket.on('connect', () => {
+      console.log('Connected to server with ID:', socket.id);
+      set({ myId: socket.id });
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Socket connection error:', err);
+      alert(`Connection failed to ${url}. Please verify the server is running and the IP/port are correct.`);
+      set({ socket: null, myId: null });
+    });
+
+    socket.on('room_created', ({ roomCode }) => {
+      set({ roomCode, phase: 'LOBBY' });
+    });
+
+    socket.on('room_joined', ({ roomCode }) => {
+      set({ roomCode, phase: 'LOBBY' });
+    });
+
+    socket.on('update_room', (room) => {
+      // Don't override phase unless it's explicitly lobbying still, or let the specific phase events override it
+      set(state => ({ 
+        players: room.players, 
+        hostId: room.hostId,
+        votes: room.votes || {},
+        nightActions: room.nightActions || {},
+        phase: (room.phase === 'LOBBY' && state.phase !== 'HOME') ? 'LOBBY' : state.phase
+      }));
+    });
+
+    socket.on('game_started', (room) => {
+      set({ players: room.players, phase: 'NIGHT', policeResult: null, killedId: null, eliminatedId: null, winner: null, votes: {}, nightActions: room.nightActions || {} });
+    });
+
+    socket.on('day_started', ({ room, killed }) => {
+      set({ players: room.players, phase: 'DAY', killedId: killed, votes: {}, nightActions: {} });
+    });
+    
+    socket.on('voting_started', (room) => {
+      set({ phase: 'VOTING', votes: room.votes || {}, nightActions: {} });
+    });
+
+    socket.on('night_started', ({ room, eliminatedId }) => {
+      set({ players: room.players, phase: 'NIGHT', eliminatedId, policeResult: null, votes: {}, nightActions: room.nightActions || {} });
+    });
+    
+    socket.on('police_result', (result) => {
+      set({ policeResult: result });
+    });
+
+    socket.on('game_ended', ({ room, winner }) => {
+      set({ players: room.players, phase: 'END', winner, votes: {}, nightActions: {} });
+    });
+
+    socket.on('room_reset', (room) => {
+      set({ players: room.players, phase: 'LOBBY', winner: null, killedId: null, eliminatedId: null, policeResult: null, votes: {}, nightActions: {} });
+    });
+
+    socket.on('error', (msg) => {
+      alert(msg);
+    });
+
+    set({ socket });
+  },
+
+  createRoom: () => {
+    const { socket, playerName } = get();
+    if (socket && playerName) socket.emit('create_room', { playerName });
+  },
+
+  joinRoom: (code) => {
+    const { socket, playerName } = get();
+    if (socket && playerName) socket.emit('join_room', { roomCode: code, playerName });
+  },
+
+  startGame: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('start_game', { roomCode });
+  },
+
+  submitNightAction: (targetId, role) => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('night_action', { roomCode, targetId, role });
+  },
+
+  endNight: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('end_night', { roomCode });
+  },
+  
+  startVoting: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('start_voting', { roomCode });
+  },
+
+  submitVote: (targetId) => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('vote', { roomCode, targetId });
+  },
+  
+  endVoting: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('end_voting', { roomCode });
+  },
+
+  resetGame: () => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('reset_game', { roomCode });
+  }
+}));
