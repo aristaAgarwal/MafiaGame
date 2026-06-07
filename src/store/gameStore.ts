@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 
-// We will use localhost for now. In a real app testing on devices, we'd use the local IP.
-const SOCKET_URL = 'http://localhost:3000';
+// Socket server URL from environment configuration with localhost fallback
+const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000';
 
 export interface Player {
   id: string;
