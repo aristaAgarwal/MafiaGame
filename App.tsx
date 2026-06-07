@@ -63,7 +63,6 @@ export default function App() {
       <ImageBackground
         source={require('./assets/bg.png')}
         style={styles.backgroundImage}
-        blurRadius={6}
         resizeMode="cover"
       >
         <KeyboardAvoidingView

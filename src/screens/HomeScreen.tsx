@@ -90,7 +90,6 @@ export default function HomeScreen() {
         {/* Player Profile Card */}
         <Card style={styles.profileCard}>
           <Text style={styles.sectionLabel}>PLAYER PROFILE</Text>
-          <View style={styles.goldLine} />
 
           <TextInput
             style={styles.playerNameInput}
@@ -198,7 +197,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 120,
     paddingBottom: 120, // Spacer for bottom nav
     alignItems: 'center',
   },
@@ -222,11 +221,12 @@ const styles = StyleSheet.create({
   profileCard: {
     width: '100%',
     maxWidth: 342,
+    marginTop: 60,
   },
   sectionLabel: {
     fontFamily: 'Cinzel_400Regular',
-    fontSize: 10,
-    color: '#8B8070',
+    fontSize: 17,
+    color: COLORS.gold,
     letterSpacing: 4,
     textAlign: 'center',
     marginBottom: 6,
@@ -240,8 +240,8 @@ const styles = StyleSheet.create({
   },
   playerNameInput: {
     fontFamily: 'Cinzel_700Bold',
-    fontSize: 20,
-    color: COLORS.gold,
+    fontSize: 30,
+    color: '#FFFFFF',
     letterSpacing: 2.5,
     textAlign: 'center',
     marginBottom: 4,
@@ -256,8 +256,8 @@ const styles = StyleSheet.create({
   },
   playerSubtitle: {
     fontFamily: 'Cinzel_400Regular',
-    fontSize: 9,
-    color: COLORS.redAccent,
+    fontSize: 14,
+    color: COLORS.textPrimary,
     letterSpacing: 1.5,
     textAlign: 'center',
     marginBottom: 20,
@@ -266,8 +266,8 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 14,
     borderRadius: 8,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
-    borderWidth: 1.5,
+    borderColor: '#D6CBB9',
+    borderWidth: 2.5,
   },
   actionBtnFullText: {
     fontSize: 12,
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   cardDivider: {
     width: '100%',
     height: 1,
-    backgroundColor: '#2A2018',
+    backgroundColor: '#80736eff',
     marginBottom: 20,
   },
   orDividerContainer: {

@@ -2,9 +2,9 @@ import { GamePhase } from '../types/game';
 
 export const COLORS = {
   background: '#0D0B0A',
-  surface: 'rgba(26, 22, 18, 0.6)',
+  surface: 'rgba(255, 255, 255, 0.3)',
   surfaceElevated: '#221C17',
-  gold: '#C8A04A',
+  gold: '#dfae45ff',
   goldLight: '#E8C06A',
   redAccent: '#8B2020',
   redBright: '#C0392B',

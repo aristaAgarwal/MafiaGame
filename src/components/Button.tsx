@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
   },
   outlineButton: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.4)',
+    borderWidth: 2.5,
+    borderColor: '#D6CBB9',
     borderRadius: 4,
     paddingVertical: 8,
     paddingHorizontal: 10,
