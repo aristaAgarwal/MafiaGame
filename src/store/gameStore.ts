@@ -40,6 +40,7 @@ interface GameState {
   submitVote: (targetId: string) => void;
   endVoting: () => void;
   resetGame: () => void;
+  leaveLobby: () => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -195,5 +196,24 @@ export const useGameStore = create<GameState>((set, get) => ({
   resetGame: () => {
     const { socket, roomCode } = get();
     if (socket && roomCode) socket.emit('reset_game', { roomCode });
+  },
+
+  leaveLobby: () => {
+    const { socket } = get();
+    if (socket) {
+      socket.disconnect();
+    }
+    set({
+      socket: null,
+      roomCode: null,
+      phase: 'HOME',
+      players: {},
+      hostId: null,
+      myId: null,
+      policeResult: null,
+      winner: null,
+      votes: {},
+      nightActions: {}
+    });
   }
 }));

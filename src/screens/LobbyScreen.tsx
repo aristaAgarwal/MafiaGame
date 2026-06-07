@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -22,7 +22,10 @@ export default function LobbyScreen() {
     players,
     hostId,
     startGame,
+    leaveLobby,
   } = useGameStore();
+
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const playersList = Object.values(players);
   const isHost = myId === hostId;
@@ -39,10 +42,23 @@ export default function LobbyScreen() {
     }
   };
 
+  const handleBackPress = () => {
+    setShowExitConfirm(true);
+  };
+
   return (
     <View style={styles.screenContainer}>
-      {/* Title */}
-      <Text style={styles.mainTitle}>MAFIA: CITY OF SHADOWS</Text>
+      {/* Top Navigation Bar */}
+      <View style={styles.headerBar}>
+        <TouchableOpacity 
+          style={styles.headerBackButton} 
+          onPress={handleBackPress} 
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>MAFIA: CITY OF SHADOWS</Text>
+      </View>
 
       {/* Main Glassmorphic Lobby Card */}
       <Card style={styles.lobbyCard}>
@@ -178,6 +194,33 @@ export default function LobbyScreen() {
           <Text style={styles.navText}>SETTINGS</Text>
         </View>
       </View>
+
+      {/* Exit Confirmation Dialog */}
+      {showExitConfirm && (
+        <View style={styles.confirmOverlay}>
+          <Card style={styles.confirmDialog}>
+            <Text style={styles.confirmTitle}>EXIT LOBBY</Text>
+            <Text style={styles.confirmText}>Are you sure you want to leave the game lobby?</Text>
+            <View style={styles.confirmButtons}>
+              <Button
+                title="CANCEL"
+                variant="outline"
+                onPress={() => setShowExitConfirm(false)}
+                style={styles.confirmBtn}
+              />
+              <Button
+                title="EXIT"
+                variant="primary"
+                onPress={() => {
+                  setShowExitConfirm(false);
+                  leaveLobby();
+                }}
+                style={styles.confirmBtn}
+              />
+            </View>
+          </Card>
+        </View>
+      )}
     </View>
   );
 }
@@ -191,14 +234,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mainTitle: {
+  headerBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: Platform.OS === 'ios' ? 104 : 84,
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.bottomNavBorder,
+    backgroundColor: COLORS.bottomNavBg,
+    zIndex: 999,
+  },
+  headerTitle: {
     fontFamily: 'Cinzel_700Bold',
-    fontSize: 18,
+    fontSize: 16,
     color: COLORS.white,
     letterSpacing: 2,
-    textAlign: 'center',
     position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
+    left: 56,
+    right: 56,
+    textAlign: 'center',
+  },
+  headerBackButton: {
+    padding: 8,
+    zIndex: 1000,
   },
   lobbyCard: {
     flex: 1,
@@ -438,5 +501,48 @@ const styles = StyleSheet.create({
   },
   activeNavText: {
     color: COLORS.gold,
+  },
+  confirmOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  confirmDialog: {
+    width: '85%',
+    maxWidth: 300,
+    padding: 24,
+    alignItems: 'center',
+  },
+  confirmTitle: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 18,
+    color: COLORS.white,
+    marginBottom: 12,
+    textAlign: 'center',
+    letterSpacing: 1.5,
+  },
+  confirmText: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 13,
+    color: COLORS.textPrimary,
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 18,
+    letterSpacing: 0.5,
+  },
+  confirmButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: 12,
+  },
+  confirmBtn: {
+    flex: 1,
   },
 });
