@@ -4,8 +4,7 @@ export const COLORS = {
   background: '#0D0B0A',
   surface: 'rgba(255, 255, 255, 0.3)',
   surfaceElevated: '#221C17',
-  gold: '#dfae45ff',
-  goldLight: '#E8C06A',
+  gold: '#E8C06A',
   redAccent: '#8B2020',
   redBright: '#C0392B',
   textPrimary: '#F0E8D8',
@@ -21,12 +20,13 @@ export const COLORS = {
 
   // Semantically defined utility colors
   white: '#FFFFFF',
-  whiteTranslucent35: 'rgba(255, 255, 255, 0.35)',
-  whiteTranslucent30: 'rgba(255, 255, 255, 0.3)',
-  whiteTranslucent25: 'rgba(255, 255, 255, 0.25)',
+  whiteTranslucent: 'rgba(255, 255, 255, 0.3)',
   
   cardBorder: '#d5bf9aff',
   cardDivider: '#80736eff',
+  borderLight: 'rgba(255, 255, 255, 0.1)',
+  borderSubtle: 'rgba(255, 255, 255, 0.05)',
+  goldTranslucent: 'rgba(232, 192, 106, 0.3)',
   
   bottomNavBg: '#141210',
   bottomNavBorder: '#2A2018',
@@ -35,11 +35,8 @@ export const COLORS = {
   titleShadow: 'rgba(200, 160, 74, 0.15)',
 
   // Overlays & opacity backgrounds
-  overlayGold05: 'rgba(200, 160, 74, 0.05)',
-  overlayGold15: 'rgba(200, 160, 74, 0.15)',
-  overlayRed15: 'rgba(192, 57, 43, 0.15)',
-  overlayGoldLight05: 'rgba(232, 192, 106, 0.05)',
-  overlayGoldLight20: 'rgba(232, 192, 106, 0.2)',
+  overlayGold05: 'rgba(232, 192, 106, 0.05)',
+  overlayGold20: 'rgba(232, 192, 106, 0.2)',
   overlayRed05: 'rgba(192, 57, 43, 0.05)',
   overlayRed20: 'rgba(192, 57, 43, 0.2)',
   toastBg: 'rgba(26, 22, 18, 0.95)',

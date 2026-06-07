@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   roomCodeSub: {
     fontFamily: 'Cinzel_700Bold',
     fontSize: 12,
-    color: COLORS.goldLight,
+    color: COLORS.gold,
     textAlign: 'center',
     letterSpacing: 2,
     marginBottom: 20, // Reduced from 28 to fit inside max height
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   tableHeaderRow: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: COLORS.borderLight,
     paddingBottom: 8,
     marginBottom: 8,
   },
@@ -273,7 +273,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12, // Reduced from 15 to fit inside compact layout
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: COLORS.borderSubtle,
   },
   playerNameContainer: {
     flexDirection: 'row',
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   meAvatarWrapper: {
-    borderColor: 'rgba(232, 192, 106, 0.3)',
+    borderColor: COLORS.goldTranslucent,
     borderWidth: 1,
   },
   playerName: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   readyStatusText: {
     fontFamily: 'Cinzel_700Bold',
     fontSize: 12,
-    color: COLORS.goldLight,
+    color: COLORS.gold,
     letterSpacing: 0.5,
   },
   hostStatusText: {
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: COLORS.borderLight,
     borderWidth: 1.5,
     shadowColor: COLORS.black,
     shadowOffset: { width: 0, height: 2 },

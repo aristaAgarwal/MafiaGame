@@ -36,7 +36,7 @@ export default function Input({
           isCode && styles.codeInput,
           inputStyle,
         ]}
-        placeholderTextColor={COLORS.whiteTranslucent35}
+        placeholderTextColor={COLORS.whiteTranslucent}
         {...rest}
       />
     </View>

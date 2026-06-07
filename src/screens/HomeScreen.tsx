@@ -96,7 +96,7 @@ export default function HomeScreen() {
             value={inputName}
             onChangeText={setInputName}
             placeholder="Enter Name"
-            placeholderTextColor="rgba(255, 255, 255, 0.35)"
+            placeholderTextColor={COLORS.whiteTranslucent}
             maxLength={15}
             autoCapitalize="characters"
             textAlign="center"
@@ -119,14 +119,14 @@ export default function HomeScreen() {
           {/* OR Divider with Faded Lines */}
           <View style={styles.orDividerContainer}>
             <LinearGradient
-              colors={['transparent', COLORS.whiteTranslucent25]}
+              colors={['transparent', COLORS.whiteTranslucent]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
             />
             <Text style={styles.orText}>-or-</Text>
             <LinearGradient
-              colors={[COLORS.whiteTranslucent25, 'transparent']}
+              colors={[COLORS.whiteTranslucent, 'transparent']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.orLine}
@@ -153,7 +153,7 @@ export default function HomeScreen() {
               <Ionicons
                 name="enter-outline"
                 size={14}
-                color={inputCode.trim().length === 4 ? COLORS.white : COLORS.whiteTranslucent30}
+                color={inputCode.trim().length === 4 ? COLORS.white : COLORS.whiteTranslucent}
               />
             }
           />
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     fontSize: 48,
     color: COLORS.textPrimary,
     letterSpacing: 8,
-    textShadowColor: 'rgba(200, 160, 74, 0.15)',
+    textShadowColor: COLORS.titleShadow,
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 20,
     zIndex: 2,
