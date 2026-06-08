@@ -60,7 +60,7 @@ export default function HomeScreen() {
     }
     setPlayerName(name);
     setPendingAction({ type: 'CREATE' });
-    connectSocket(inputUrl.trim());
+    connectSocket();
   };
 
   const handleJoin = () => {
@@ -76,7 +76,7 @@ export default function HomeScreen() {
     }
     setPlayerName(name);
     setPendingAction({ type: 'JOIN', code: inputCode.trim() });
-    connectSocket(inputUrl.trim());
+    connectSocket();
   };
 
   return (
