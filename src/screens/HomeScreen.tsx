@@ -27,15 +27,7 @@ export default function HomeScreen() {
     showToast,
   } = useGameStore();
 
-  const getDefaultUrl = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      return `http://${window.location.hostname}:3000`;
-    }
-    return 'http://localhost:3000';
-  };
-
   const [inputName, setInputName] = useState('');
-  const [inputUrl, setInputUrl] = useState(getDefaultUrl());
   const [inputCode, setInputCode] = useState('');
   const [pendingAction, setPendingAction] = useState<{ type: 'CREATE' | 'JOIN'; code?: string } | null>(null);
 
