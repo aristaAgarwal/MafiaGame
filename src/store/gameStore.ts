@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { io, Socket } from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
+import { Alert, Platform } from 'react-native';
 
 // Socket server URL from environment configuration with localhost fallback
 const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000';
@@ -10,6 +11,7 @@ export interface Player {
   role: string | null;
   isAlive: boolean;
   isHost: boolean;
+  isOnline: boolean;
 }
 
 interface GameState {
@@ -42,7 +44,47 @@ interface GameState {
   endVoting: () => void;
   resetGame: () => void;
   leaveLobby: () => void;
+  kickPlayer: (targetId: string) => void;
 }
+
+const checkOfflineAndProceed = (get: any, action: () => void) => {
+  const { players, socket, roomCode } = get() as GameState;
+  const offlinePlayers = Object.values(players).filter((p: Player) => !p.isOnline && p.isAlive);
+  if (offlinePlayers.length > 0) {
+    const names = offlinePlayers.map((p: Player) => p.name).join(', ');
+    const message = `The following players are offline: ${names}. Do you want to kick them and proceed?`;
+    
+    if (Platform.OS === 'web') {
+      const confirm = window.confirm(`Offline Players Detected\n\n${message}`);
+      if (confirm) {
+        offlinePlayers.forEach((p: Player) => {
+          socket?.emit('kick_player', { roomCode, targetId: p.id });
+        });
+        action();
+      }
+    } else {
+      Alert.alert(
+        'Offline Players Detected',
+        message,
+        [
+          { text: 'Wait', style: 'cancel' },
+          { 
+            text: 'Kick & Proceed', 
+            style: 'destructive',
+            onPress: () => {
+              offlinePlayers.forEach((p: Player) => {
+                socket?.emit('kick_player', { roomCode, targetId: p.id });
+              });
+              action();
+            }
+          }
+        ]
+      );
+    }
+  } else {
+    action();
+  }
+};
 
 export const useGameStore = create<GameState>((set, get) => ({
   socket: null,
@@ -92,6 +134,11 @@ export const useGameStore = create<GameState>((set, get) => ({
     socket.on('connect', () => {
       console.log('Connected to server with ID:', socket.id);
       set({ myId: socket.id });
+      // Auto-rejoin if we were in a room
+      const { roomCode, playerName } = get();
+      if (roomCode && playerName) {
+        socket.emit('join_room', { roomCode, playerName });
+      }
     });
 
     socket.on('connect_error', (err) => {
@@ -166,7 +213,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   startGame: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('start_game', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('start_game', { roomCode }));
+    }
   },
 
   submitNightAction: (targetId, role) => {
@@ -176,12 +225,16 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   endNight: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('end_night', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('end_night', { roomCode }));
+    }
   },
   
   startVoting: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('start_voting', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('start_voting', { roomCode }));
+    }
   },
 
   submitVote: (targetId) => {
@@ -191,17 +244,28 @@ export const useGameStore = create<GameState>((set, get) => ({
   
   endVoting: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('end_voting', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('end_voting', { roomCode }));
+    }
   },
 
   startNight: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('start_night', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('start_night', { roomCode }));
+    }
   },
 
   resetGame: () => {
     const { socket, roomCode } = get();
-    if (socket && roomCode) socket.emit('reset_game', { roomCode });
+    if (socket && roomCode) {
+      checkOfflineAndProceed(get, () => socket.emit('reset_game', { roomCode }));
+    }
+  },
+
+  kickPlayer: (targetId) => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) socket.emit('kick_player', { roomCode, targetId });
   },
 
   leaveLobby: () => {

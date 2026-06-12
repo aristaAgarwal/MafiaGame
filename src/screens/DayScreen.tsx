@@ -4,11 +4,13 @@ import {
   Text,
   View,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function DayScreen() {
   const {
@@ -17,6 +19,7 @@ export default function DayScreen() {
     hostId,
     killedId,
     startVoting,
+    kickPlayer,
   } = useGameStore();
 
   const playersList = Object.values(players);
@@ -63,12 +66,34 @@ export default function DayScreen() {
                 !player.isAlive && styles.playerListRowDead,
               ]}
             >
-              <Text style={[styles.playerNameText, !player.isAlive && styles.strikeThrough]}>
-                {player.name.toUpperCase()}
-              </Text>
-              <Text style={player.isAlive ? styles.aliveLabel : styles.deadLabel}>
-                {player.isAlive ? 'ALIVE' : '💀 ELIMINATED'}
-              </Text>
+              <View style={styles.playerInfoRow}>
+                <Text style={[styles.playerNameText, !player.isAlive && styles.strikeThrough]}>
+                  {player.name.toUpperCase()}
+                </Text>
+                {!player.isOnline && player.isAlive && (
+                  <Text style={styles.offlineTag}> (OFFLINE)</Text>
+                )}
+              </View>
+
+              <View style={styles.statusContainer}>
+                {!player.isOnline && player.isAlive ? (
+                  <View style={styles.offlineActionRow}>
+                    <Text style={styles.offlineStatusText}>Offline</Text>
+                    {isHost && (
+                      <TouchableOpacity 
+                        onPress={() => kickPlayer(player.id)}
+                        style={styles.smallKickBtn}
+                      >
+                        <Ionicons name="close-circle" size={16} color={COLORS.redBright} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ) : (
+                  <Text style={player.isAlive ? styles.aliveLabel : styles.deadLabel}>
+                    {player.isAlive ? 'ALIVE' : '💀 ELIMINATED'}
+                  </Text>
+                )}
+              </View>
             </View>
           ))}
         </Card>
@@ -221,5 +246,31 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     marginBottom: 12,
     textAlign: 'center',
+  },
+  playerInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  offlineTag: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 10,
+    color: COLORS.redBright,
+  },
+  statusContainer: {
+    alignItems: 'flex-end',
+  },
+  offlineActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  offlineStatusText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 11,
+    color: COLORS.redBright,
+    letterSpacing: 0.5,
+  },
+  smallKickBtn: {
+    marginLeft: 6,
+    padding: 2,
   },
 });

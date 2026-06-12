@@ -22,6 +22,7 @@ export default function LobbyScreen() {
     players,
     hostId,
     startGame,
+    kickPlayer,
   } = useGameStore();
 
   const playersList = Object.values(players);
@@ -85,7 +86,19 @@ export default function LobbyScreen() {
 
                 {/* Status / Host Badge */}
                 <View style={[styles.colStatus, styles.statusContainer]}>
-                  {player.isHost ? (
+                  {!player.isOnline ? (
+                    <View style={styles.offlineRow}>
+                      <Text style={styles.offlineText}>Offline</Text>
+                      {isHost && (
+                        <TouchableOpacity 
+                          onPress={() => kickPlayer(player.id)}
+                          style={styles.smallKickBtn}
+                        >
+                          <Ionicons name="close-circle" size={16} color={COLORS.redBright} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ) : player.isHost ? (
                     <Text style={styles.hostStatusText}>Host</Text>
                   ) : (
                     <Text style={styles.readyStatusText}>Ready</Text>
@@ -470,5 +483,20 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     flex: 1,
+  },
+  offlineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  offlineText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 12,
+    color: COLORS.redBright,
+    letterSpacing: 0.5,
+  },
+  smallKickBtn: {
+    marginLeft: 6,
+    padding: 2,
   },
 });
