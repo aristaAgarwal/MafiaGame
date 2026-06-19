@@ -76,7 +76,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ImageBackground
         source={getBgImage()}
@@ -89,14 +89,16 @@ export default function App() {
         >
           {phase !== 'HOME' && phase !== undefined && (
             <View style={styles.headerBar}>
-              <TouchableOpacity 
-                style={styles.headerBackButton} 
-                onPress={() => setShowExitConfirm(true)} 
-                activeOpacity={0.7}
-              >
-                <Ionicons name="chevron-back" size={24} color={COLORS.white} />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>MAFIA: CITY OF SHADOWS</Text>
+              <View style={styles.headerContent}>
+                <TouchableOpacity
+                  style={styles.headerBackButton}
+                  onPress={() => setShowExitConfirm(true)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="chevron-back" size={24} color={COLORS.white} />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>MAFIA: CITY OF SHADOWS</Text>
+              </View>
             </View>
           )}
 
@@ -133,7 +135,7 @@ export default function App() {
 
         <Toast />
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -155,26 +157,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerBar: {
-    height: Platform.OS === 'ios' ? 104 : 84,
-    paddingTop: Platform.OS === 'ios' ? 44 : 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
+    height: Platform.OS === 'ios' ? 104 : 100,
+    paddingTop: Platform.OS === 'ios' ? 44 : 40,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.bottomNavBorder,
     backgroundColor: COLORS.bottomNavBg,
+  },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   headerTitle: {
     fontFamily: 'Cinzel_700Bold',
     fontSize: 16,
     color: COLORS.white,
     letterSpacing: 2,
-    position: 'absolute',
-    left: 56,
-    right: 56,
     textAlign: 'center',
   },
   headerBackButton: {
+    position: 'absolute',
+    left: 8,
     padding: 8,
     zIndex: 1000,
   },
