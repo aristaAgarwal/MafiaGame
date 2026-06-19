@@ -118,26 +118,31 @@ export const useGameStore = create<GameState>((set, get) => ({
     const url = serverUrl || SOCKET_URL;
     
     if (currentSocket) {
-      // If already connected to the same URL, reuse the connection
-      if (currentSocket.active && ((currentSocket.io as any).uri === url || (currentSocket.io as any).uri === url + '/')) {
-        return;
+      const isSameUrl = (currentSocket.io as any).uri === url || (currentSocket.io as any).uri === url + '/';
+      const isConnectingOrConnected = currentSocket.connected || currentSocket.io.readyState === 'opening';
+      
+      if (isSameUrl && isConnectingOrConnected) {
+        return; // Already connecting or connected to this server
       }
       currentSocket.disconnect();
     }
     
     console.log('Connecting to socket server at:', url);
     const socket = io(url, {
-      transports: ['websocket'],
-      timeout: 5000
+      timeout: 20000, // 20 seconds timeout for slower networks or server cold-starts
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     });
     
     socket.on('connect', () => {
       console.log('Connected to server with ID:', socket.id);
+      const previousId = get().myId; // Store previous socket ID before updating
       set({ myId: socket.id });
       // Auto-rejoin if we were in a room
       const { roomCode, playerName } = get();
       if (roomCode && playerName) {
-        socket.emit('join_room', { roomCode, playerName });
+        socket.emit('join_room', { roomCode, playerName, previousSocketId: previousId });
       }
     });
 
@@ -147,12 +152,18 @@ export const useGameStore = create<GameState>((set, get) => ({
       set({ socket: null, myId: null });
     });
 
-    socket.on('room_created', ({ roomCode }) => {
+    socket.on('room_created', ({ roomCode, player }) => {
       set({ roomCode, phase: 'LOBBY' });
+      if (player && player.name) {
+        set({ playerName: player.name });
+      }
     });
 
-    socket.on('room_joined', ({ roomCode }) => {
+    socket.on('room_joined', ({ roomCode, player }) => {
       set({ roomCode, phase: 'LOBBY' });
+      if (player && player.name) {
+        set({ playerName: player.name });
+      }
     });
 
     socket.on('update_room', (room) => {
@@ -207,8 +218,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   joinRoom: (code) => {
-    const { socket, playerName } = get();
-    if (socket && playerName) socket.emit('join_room', { roomCode: code, playerName });
+    const { socket, playerName, myId } = get();
+    if (socket && playerName) socket.emit('join_room', { roomCode: code, playerName, previousSocketId: myId });
   },
 
   startGame: () => {
