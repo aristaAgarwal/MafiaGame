@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,6 +17,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import RulesScreen from './RulesScreen';
 
 export default function HomeScreen() {
   const {
@@ -30,6 +32,8 @@ export default function HomeScreen() {
   const [inputName, setInputName] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [pendingAction, setPendingAction] = useState<{ type: 'CREATE' | 'JOIN'; code?: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<'HOME' | 'SHADOWS' | 'MESSAGES' | 'SETTINGS'>('HOME');
+  const [customServerUrl, setCustomServerUrl] = useState('');
 
   // Handle lazy socket connection & emissions
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function HomeScreen() {
     }
     setPlayerName(name);
     setPendingAction({ type: 'CREATE' });
-    connectSocket();
+    connectSocket(customServerUrl.trim() || undefined);
   };
 
   const handleJoin = () => {
@@ -68,7 +72,7 @@ export default function HomeScreen() {
     }
     setPlayerName(name);
     setPendingAction({ type: 'JOIN', code: inputCode.trim() });
-    connectSocket();
+    connectSocket(customServerUrl.trim() || undefined);
   };
 
   return (
@@ -79,77 +83,141 @@ export default function HomeScreen() {
           <Text style={styles.gameTitle}>MAFIA</Text>
         </View>
 
-        {/* Player Profile Card */}
-        <Card style={styles.profileCard}>
-          <Text style={styles.sectionLabel}>PLAYER PROFILE</Text>
+        {/* HOME View */}
+        {activeTab === 'HOME' && (
+          <Card style={styles.profileCard}>
+            <Text style={styles.sectionLabel}>PLAYER PROFILE</Text>
 
-          <TextInput
-            style={styles.playerNameInput}
-            value={inputName}
-            onChangeText={setInputName}
-            placeholder="Enter Name"
-            placeholderTextColor={COLORS.whiteTranslucent}
-            maxLength={15}
-            autoCapitalize="characters"
-            textAlign="center"
-          />
-          <Text style={styles.playerSubtitle}>LEVEL 14 | OMERTA SOCIETY</Text>
-
-          <View style={styles.cardDivider} />
-
-          {/* Input Fields */}
-
-          <Button
-            title="CREATE ROOM"
-            onPress={handleCreate}
-            variant="outline"
-            style={styles.actionBtnFull}
-            textStyle={styles.actionBtnFullText}
-            icon={<Ionicons name="add-circle-outline" size={14} color={COLORS.white} />}
-          />
-
-          {/* OR Divider with Faded Lines */}
-          <View style={styles.orDividerContainer}>
-            <LinearGradient
-              colors={['transparent', COLORS.whiteTranslucent]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.orLine}
+            <TextInput
+              style={styles.playerNameInput}
+              value={inputName}
+              onChangeText={setInputName}
+              placeholder="Enter Name"
+              placeholderTextColor={COLORS.whiteTranslucent}
+              maxLength={15}
+              autoCapitalize="characters"
+              textAlign="center"
             />
-            <Text style={styles.orText}>-or-</Text>
-            <LinearGradient
-              colors={[COLORS.whiteTranslucent, 'transparent']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.orLine}
+            <Text style={styles.playerSubtitle}>LEVEL 14 | OMERTA SOCIETY</Text>
+
+            <View style={styles.cardDivider} />
+
+            {/* Input Fields */}
+
+            <Button
+              title="CREATE ROOM"
+              onPress={handleCreate}
+              variant="outline"
+              style={styles.actionBtnFull}
+              textStyle={styles.actionBtnFullText}
+              icon={<Ionicons name="add-circle-outline" size={14} color={COLORS.white} />}
             />
-          </View>
 
-          <Input
-            label="ENTER ROOM CODE"
-            placeholder="e.g. 1234"
-            value={inputCode}
-            onChangeText={setInputCode}
-            keyboardType="number-pad"
-            maxLength={4}
-          />
-
-          <Button
-            title="JOIN ROOM"
-            onPress={handleJoin}
-            variant="outline"
-            disabled={inputCode.trim().length !== 4}
-            style={styles.actionBtnFull}
-            textStyle={styles.actionBtnFullText}
-            icon={
-              <Ionicons
-                name="enter-outline"
-                size={14}
-                color={inputCode.trim().length === 4 ? COLORS.white : COLORS.whiteTranslucent}
+            {/* OR Divider with Faded Lines */}
+            <View style={styles.orDividerContainer}>
+              <LinearGradient
+                colors={['transparent', COLORS.whiteTranslucent]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.orLine}
               />
-            }
-          />
-        </Card>
+              <Text style={styles.orText}>-or-</Text>
+              <LinearGradient
+                colors={[COLORS.whiteTranslucent, 'transparent']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.orLine}
+              />
+            </View>
+
+            <Input
+              label="ENTER ROOM CODE"
+              placeholder="e.g. 1234"
+              value={inputCode}
+              onChangeText={setInputCode}
+              keyboardType="number-pad"
+              maxLength={4}
+            />
+
+            <Button
+              title="JOIN ROOM"
+              onPress={handleJoin}
+              variant="outline"
+              disabled={inputCode.trim().length !== 4}
+              style={styles.actionBtnFull}
+              textStyle={styles.actionBtnFullText}
+              icon={
+                <Ionicons
+                  name="enter-outline"
+                  size={14}
+                  color={inputCode.trim().length === 4 ? COLORS.white : COLORS.whiteTranslucent}
+                />
+              }
+            />
+          </Card>
+        )}
+
+        {/* SHADOWS (Rules) View */}
+        {activeTab === 'SHADOWS' && (
+          <RulesScreen onBackToHome={() => setActiveTab('HOME')} />
+        )}
+
+        {/* MESSAGES View */}
+        {activeTab === 'MESSAGES' && (
+          <Card style={styles.profileCard}>
+            <Text style={styles.sectionLabel}>COMMUNICATIONS</Text>
+            
+            <View style={styles.comingSoonBody}>
+              <View style={styles.lockedIconWrapper}>
+                <Ionicons name="chatbubbles-outline" size={48} color={COLORS.gold} />
+              </View>
+              <Text style={styles.comingSoonTitle}>MESSAGING SYSTEM</Text>
+              <Text style={styles.comingSoonDescription}>
+                A secure real-time messaging system and private channels for the Mafia conspiracy are currently locked and in development.
+              </Text>
+              <View style={styles.featureSoonBadge}>
+                <Text style={styles.featureSoonText}>COMING SOON</Text>
+              </View>
+            </View>
+          </Card>
+        )}
+
+        {/* SETTINGS View */}
+        {activeTab === 'SETTINGS' && (
+          <Card style={styles.profileCard}>
+            <Text style={styles.sectionLabel}>SETTINGS</Text>
+            
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>SERVER CONNECTION</Text>
+              <TextInput
+                style={styles.settingInput}
+                value={customServerUrl}
+                onChangeText={setCustomServerUrl}
+                placeholder="http://localhost:3000"
+                placeholderTextColor={COLORS.textMuted}
+                autoCapitalize="none"
+                textAlign="center"
+              />
+              <Text style={styles.settingSubtext}>
+                Configure a custom IP/port to connect to a server hosted on your local network.
+              </Text>
+            </View>
+
+            <View style={styles.cardDivider} />
+
+            <Button
+              title="SAVE CONFIGURATION"
+              onPress={() => {
+                showToast('Server connection configuration saved');
+                setActiveTab('HOME');
+              }}
+              variant="outline"
+              style={styles.actionBtnFull}
+              textStyle={styles.actionBtnFullText}
+              icon={<Ionicons name="save-outline" size={14} color={COLORS.white} />}
+            />
+          </Card>
+        )}
 
         {pendingAction && (
           <View style={styles.loadingOverlay}>
@@ -161,22 +229,41 @@ export default function HomeScreen() {
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        <View style={styles.navItem}>
-          <Ionicons name="home" size={20} color={COLORS.gold} />
-          <Text style={[styles.navText, styles.activeNavText]}>HOME</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
-          <Text style={styles.navText}>SHADOWS</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="mail" size={20} color={COLORS.navIconInactive} />
-          <Text style={styles.navText}>MESSAGES</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="settings" size={20} color={COLORS.navIconInactive} />
-          <Text style={styles.navText}>SETTINGS</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => setActiveTab('HOME')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="home" size={20} color={activeTab === 'HOME' ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, activeTab === 'HOME' && styles.activeNavText]}>HOME</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => setActiveTab('SHADOWS')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="shield" size={20} color={activeTab === 'SHADOWS' ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, activeTab === 'SHADOWS' && styles.activeNavText]}>SHADOWS</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => setActiveTab('MESSAGES')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="mail" size={20} color={activeTab === 'MESSAGES' ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, activeTab === 'MESSAGES' && styles.activeNavText]}>MESSAGES</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => setActiveTab('SETTINGS')}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="settings" size={20} color={activeTab === 'SETTINGS' ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, activeTab === 'SETTINGS' && styles.activeNavText]}>SETTINGS</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -327,5 +414,99 @@ const styles = StyleSheet.create({
   },
   activeNavText: {
     color: COLORS.gold,
+  },
+  comingSoonBody: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 30,
+  },
+  lockedIconWrapper: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  comingSoonTitle: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 16,
+    color: COLORS.white,
+    letterSpacing: 2,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  comingSoonDescription: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 12.5,
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    lineHeight: 20,
+    letterSpacing: 0.5,
+    paddingHorizontal: 16,
+    marginBottom: 24,
+  },
+  featureSoonBadge: {
+    backgroundColor: 'rgba(232, 192, 106, 0.08)',
+    borderWidth: 1,
+    borderColor: COLORS.goldTranslucent,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  featureSoonText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 9,
+    color: COLORS.gold,
+    letterSpacing: 1.5,
+  },
+  settingItem: {
+    marginVertical: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  settingLabel: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 11,
+    color: COLORS.gold,
+    letterSpacing: 1.5,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  settingInput: {
+    width: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 13,
+    color: COLORS.white,
+    letterSpacing: 1,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      } as any,
+      default: {},
+    }),
+  },
+  settingSubtext: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 10,
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    lineHeight: 16,
+    letterSpacing: 0.5,
+    marginTop: 10,
+    paddingHorizontal: 8,
   },
 });

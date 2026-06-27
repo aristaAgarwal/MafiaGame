@@ -10,6 +10,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useFonts, Cinzel_400Regular, Cinzel_700Bold } from '@expo-google-fonts/cinzel';
 import { useGameStore } from './src/store/gameStore';
@@ -108,29 +109,37 @@ export default function App() {
         </KeyboardAvoidingView>
 
         {showExitConfirm && (
-          <View style={styles.confirmOverlay}>
-            <Card style={styles.confirmDialog}>
-              <Text style={styles.confirmTitle}>EXIT GAME</Text>
-              <Text style={styles.confirmText}>Are you sure you want to exit the current game session?</Text>
-              <View style={styles.confirmButtons}>
-                <Button
-                  title="CANCEL"
-                  variant="outline"
-                  onPress={() => setShowExitConfirm(false)}
-                  style={styles.confirmBtn}
-                />
-                <Button
-                  title="EXIT"
-                  variant="primary"
-                  onPress={() => {
-                    setShowExitConfirm(false);
-                    leaveLobby();
-                  }}
-                  style={styles.confirmBtn}
-                />
+          <TouchableOpacity
+            style={styles.confirmOverlay}
+            activeOpacity={1}
+            onPress={() => setShowExitConfirm(false)}
+          >
+            <TouchableWithoutFeedback>
+              <View style={{ width: '85%', maxWidth: 300 }}>
+                <Card style={{ width: '100%' }}>
+                  <Text style={styles.confirmTitle}>EXIT GAME</Text>
+                  <Text style={styles.confirmText}>Are you sure you want to exit the current game session?</Text>
+                  <View style={styles.confirmButtons}>
+                    <Button
+                      title="CANCEL"
+                      variant="outline"
+                      onPress={() => setShowExitConfirm(false)}
+                      style={styles.confirmBtn}
+                    />
+                    <Button
+                      title="EXIT"
+                      variant="primary"
+                      onPress={() => {
+                        setShowExitConfirm(false);
+                        leaveLobby();
+                      }}
+                      style={styles.confirmBtn}
+                    />
+                  </View>
+                </Card>
               </View>
-            </Card>
-          </View>
+            </TouchableWithoutFeedback>
+          </TouchableOpacity>
         )}
 
         <Toast />

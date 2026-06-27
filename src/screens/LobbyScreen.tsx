@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     color: COLORS.gold,
   },
   playerCount: {
-    color: COLORS.textMuted,
+    color: COLORS.textPrimary,
   },
   roomCodeSub: {
     fontFamily: 'Cinzel_700Bold',
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   columnHeader: {
     fontFamily: 'Cinzel_700Bold',
     fontSize: 9,
-    color: COLORS.textMuted,
+    color: COLORS.gold, // Changed from COLORS.textMuted to sharp gold for visibility
     letterSpacing: 1.5,
   },
   colUsername: {

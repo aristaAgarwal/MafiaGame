@@ -6,14 +6,14 @@ export const COLORS = {
   surfaceElevated: '#221C17',
   gold: '#E8C06A',
   redAccent: '#8B2020',
-  redBright: '#C0392B',
+  redBright: '#FF4A4A',
   textPrimary: '#F0E8D8',
   textMuted: '#6B5E4E',
   border: '#3A2E22',
   borderGold: 'rgba(200, 160, 74, 0.4)',
 
   // Roles colors adjusted for the new palette
-  mafia: '#C0392B',
+  mafia: '#FF4A4A',
   police: '#C8A04A',
   doctor: '#E8C06A',
   villager: '#F0E8D8',

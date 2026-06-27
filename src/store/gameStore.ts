@@ -119,7 +119,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     
     if (currentSocket) {
       const isSameUrl = (currentSocket.io as any).uri === url || (currentSocket.io as any).uri === url + '/';
-      const isConnectingOrConnected = currentSocket.connected || currentSocket.io.readyState === 'opening';
+      const isConnectingOrConnected = currentSocket.connected || (currentSocket.io as any).readyState === 'opening';
       
       if (isSameUrl && isConnectingOrConnected) {
         return; // Already connecting or connected to this server
