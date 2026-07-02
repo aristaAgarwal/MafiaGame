@@ -90,7 +90,7 @@ export default function LobbyScreen() {
                     <View style={styles.offlineRow}>
                       <Text style={styles.offlineText}>Offline</Text>
                       {isHost && (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           onPress={() => kickPlayer(player.id)}
                           style={styles.smallKickBtn}
                         >
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   playerListScroll: {
-    flex: 1,
+    height: 150,
     width: '100%',
   },
   playerListContent: {

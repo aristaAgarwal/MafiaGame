@@ -153,14 +153,23 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     socket.on('room_created', ({ roomCode, player }) => {
-      set({ roomCode, phase: 'LOBBY' });
+      set({ 
+        roomCode, 
+        phase: 'LOBBY',
+        players: player ? { [player.id]: player } : {},
+        hostId: player ? player.id : null
+      });
       if (player && player.name) {
         set({ playerName: player.name });
       }
     });
 
     socket.on('room_joined', ({ roomCode, player }) => {
-      set({ roomCode, phase: 'LOBBY' });
+      set({ 
+        roomCode, 
+        phase: 'LOBBY',
+        players: player ? { [player.id]: player } : {}
+      });
       if (player && player.name) {
         set({ playerName: player.name });
       }
