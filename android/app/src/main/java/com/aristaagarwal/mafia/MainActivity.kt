@@ -1,4 +1,4 @@
-package com.anonymous.Mafia
+package com.aristaagarwal.mafia
 
 import android.os.Build
 import android.os.Bundle

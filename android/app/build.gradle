@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.Mafia'
+    namespace 'com.aristaagarwal.mafia'
     defaultConfig {
-        applicationId 'com.anonymous.Mafia'
+        applicationId 'com.aristaagarwal.mafia'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

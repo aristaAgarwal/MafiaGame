@@ -1,4 +1,4 @@
-package com.anonymous.Mafia
+package com.aristaagarwal.mafia
 
 import android.app.Application
 import android.content.res.Configuration
