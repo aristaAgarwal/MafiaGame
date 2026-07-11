@@ -19,7 +19,8 @@ export default function Card({
   return (
     <View style={[styles.shadowWrapper, style]}>
       <BlurView
-        intensity={5}
+        intensity={90}
+        tint="dark"
         style={styles.card}
       >
         {header && <Text style={[styles.cardHeader, headerStyle]}>{header.toUpperCase()}</Text>}
@@ -32,18 +33,18 @@ export default function Card({
 const styles = StyleSheet.create({
   shadowWrapper: {
     borderRadius: 20,
-    shadowColor: COLORS.gold, // Yellow glow color
+    shadowColor: COLORS.gold, // Gold glow color
     shadowOffset: { width: 0, height: 0 }, // Center glow around the border
-    shadowOpacity: 0.6, // Higher opacity for a clear glow
-    shadowRadius: 10, // High radius for soft blur glow
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
     width: '100%',
     marginBottom: 20,
   },
   card: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.surface, // Dark translucent background for glassmorphism
     borderRadius: 20, // Match the wrapper's radius exactly
-    borderWidth: 1.5, // Border placed directly on the blur view
-    borderColor: COLORS.cardBorder, // Warm grey/creamy beige border
+    borderWidth: 1.5, // Elegant thin border
+    borderColor: COLORS.cardBorder, // Translucent gold border
     padding: 24,
     width: '100%',
     overflow: 'hidden',

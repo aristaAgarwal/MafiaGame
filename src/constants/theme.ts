@@ -2,7 +2,7 @@ import { GamePhase } from '../types/game';
 
 export const COLORS = {
   background: '#0D0B0A',
-  surface: 'rgba(255, 255, 255, 0.3)',
+  surface: 'rgba(68, 63, 63, 0.3)',
   surfaceElevated: '#221C17',
   gold: '#E8C06A',
   redAccent: '#8B2020',
@@ -21,16 +21,16 @@ export const COLORS = {
   // Semantically defined utility colors
   white: '#FFFFFF',
   whiteTranslucent: 'rgba(255, 255, 255, 0.3)',
-  
+
   cardBorder: '#d5bf9aff',
   cardDivider: '#80736eff',
   borderLight: 'rgba(255, 255, 255, 0.1)',
   borderSubtle: 'rgba(255, 255, 255, 0.05)',
   goldTranslucent: 'rgba(232, 192, 106, 0.3)',
-  
+
   bottomNavBg: '#141210',
   bottomNavBorder: '#2A2018',
-  
+
   navIconInactive: '#4A3E32',
   titleShadow: 'rgba(200, 160, 74, 0.15)',
 

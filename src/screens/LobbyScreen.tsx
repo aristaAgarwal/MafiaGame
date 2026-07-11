@@ -23,6 +23,7 @@ export default function LobbyScreen() {
     hostId,
     startGame,
     kickPlayer,
+    showToast,
   } = useGameStore();
 
   const playersList = Object.values(players);
@@ -148,21 +149,33 @@ export default function LobbyScreen() {
         {/* Circular Bottom Controls inside Card */}
         <View style={styles.bottomControls}>
           <View style={styles.controlItem}>
-            <TouchableOpacity style={styles.controlCircle} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={styles.controlCircle} 
+              activeOpacity={0.8}
+              onPress={() => showToast('Coming soon.')}
+            >
               <Ionicons name="chatbubble-ellipses" size={18} color={COLORS.white} />
             </TouchableOpacity>
             <View style={styles.dotIndicatorActive} />
           </View>
 
           <View style={styles.controlItem}>
-            <TouchableOpacity style={styles.controlCircle} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={styles.controlCircle} 
+              activeOpacity={0.8}
+              onPress={() => showToast('Coming soon.')}
+            >
               <Ionicons name="settings" size={18} color={COLORS.white} />
             </TouchableOpacity>
             <View style={styles.dotIndicatorActive} />
           </View>
 
           <View style={styles.controlItem}>
-            <TouchableOpacity style={[styles.controlCircle, styles.controlCircleInactive]} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={[styles.controlCircle, styles.controlCircleInactive]} 
+              activeOpacity={0.8}
+              onPress={() => showToast('Coming soon.')}
+            >
               <Ionicons name="bar-chart" size={18} color={COLORS.navIconInactive} />
             </TouchableOpacity>
             <View style={styles.dotIndicatorInactive} />
@@ -172,22 +185,22 @@ export default function LobbyScreen() {
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
-        <View style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="home" size={20} color={COLORS.gold} />
           <Text style={[styles.navText, styles.activeNavText]}>HOME</Text>
-        </View>
-        <View style={styles.navItem}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>SHADOWS</Text>
-        </View>
-        <View style={styles.navItem}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="mail" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>MESSAGES</Text>
-        </View>
-        <View style={styles.navItem}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="settings" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>SETTINGS</Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
