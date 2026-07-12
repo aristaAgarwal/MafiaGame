@@ -82,7 +82,6 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
           style={StyleSheet.absoluteFillObject}
           resizeMode="cover"
         />
-        <View style={styles.darkOverlay} />
         <SafeAreaView style={styles.safeArea}>
           {/* Header Row */}
           <View style={styles.header}>
@@ -128,6 +127,15 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
             ) : (
               filteredMessages.map((msg) => {
                 const isMe = msg.senderId === myId;
+                const displayName = isMe ? 'You' : msg.senderName;
+
+                // Resolve name color
+                const nameColor = isMe
+                  ? COLORS.white
+                  : isMafiaChannel
+                    ? COLORS.redBright
+                    : COLORS.gold;
+
                 return (
                   <View
                     key={msg.id}
@@ -136,21 +144,31 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
                       isMe ? styles.messageRowRight : styles.messageRowLeft,
                     ]}
                   >
-                    {!isMe && (
-                      <Text style={styles.senderNameText}>
-                        {msg.senderName.toUpperCase()}
-                      </Text>
-                    )}
                     <View
                       style={[
                         styles.messageBubble,
                         isMe ? styles.bubbleRight : styles.bubbleLeft,
-                        isMe && isMafiaChannel && styles.bubbleRightMafia,
-                        !isMe && isMafiaChannel && styles.bubbleLeftMafia,
+                        isMafiaChannel ? styles.bubbleMafia : styles.bubbleTown,
                       ]}
                     >
-                      <Text style={styles.messageText}>{msg.text}</Text>
-                      <Text style={styles.timestampText}>
+                      <Text style={[
+                        styles.senderNameInBubble,
+                        { color: nameColor, alignSelf: isMe ? 'flex-end' : 'flex-start' }
+                      ]}>
+                        {displayName}
+                      </Text>
+
+                      <Text style={[
+                        styles.messageText,
+                        { textAlign: isMe ? 'right' : 'left' }
+                      ]}>
+                        {msg.text}
+                      </Text>
+
+                      <Text style={[
+                        styles.timestampText,
+                        { alignSelf: isMe ? 'flex-end' : 'flex-start' }
+                      ]}>
                         {formatTime(msg.timestamp)}
                       </Text>
                     </View>
@@ -284,39 +302,33 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     alignItems: 'flex-end',
   },
-  senderNameText: {
+  senderNameInBubble: {
     fontFamily: 'Cinzel_700Bold',
-    fontSize: 9,
-    color: COLORS.gold,
-    letterSpacing: 1,
-    marginBottom: 2,
-    marginLeft: 4,
+    fontSize: 11,
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
   messageBubble: {
-    borderRadius: 8,
+    borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderWidth: 1,
+    borderWidth: 1.2,
+    backgroundColor: 'rgba(10, 8, 7, 0.75)',
+    minWidth: 120,
   },
   bubbleLeft: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderColor: COLORS.border,
     borderBottomLeftRadius: 0,
   },
   bubbleRight: {
-    backgroundColor: 'rgba(232, 192, 106, 0.08)',
-    borderColor: COLORS.goldTranslucent,
     borderBottomRightRadius: 0,
   },
-  bubbleLeftMafia: {
-    backgroundColor: COLORS.surfaceElevated,
-    borderColor: COLORS.border,
-    borderBottomLeftRadius: 0,
+  bubbleMafia: {
+    borderColor: 'transparent',
+    borderTopColor: COLORS.redBright,
   },
-  bubbleRightMafia: {
-    backgroundColor: 'rgba(139, 32, 32, 0.15)',
-    borderColor: 'rgba(255, 74, 74, 0.3)',
-    borderBottomRightRadius: 0,
+  bubbleTown: {
+    borderColor: 'transparent',
+    borderTopColor: COLORS.gold,
   },
   messageText: {
     fontFamily: 'Cinzel_400Regular',
@@ -348,7 +360,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
     paddingHorizontal: 14,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: COLORS.inputOverlayBg,
     borderRadius: 6,
     borderColor: COLORS.border,
     borderWidth: 1,

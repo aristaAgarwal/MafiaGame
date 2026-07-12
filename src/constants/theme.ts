@@ -36,9 +36,14 @@ export const COLORS = {
 
   // Overlays & opacity backgrounds
   overlayGold05: 'rgba(232, 192, 106, 0.05)',
+  overlayGold08: 'rgba(232, 192, 106, 0.08)',
   overlayGold20: 'rgba(232, 192, 106, 0.2)',
   overlayRed05: 'rgba(192, 57, 43, 0.05)',
+  overlayRed15: 'rgba(139, 32, 32, 0.15)',
   overlayRed20: 'rgba(192, 57, 43, 0.2)',
+  overlayRedBright30: 'rgba(255, 74, 74, 0.3)',
+  inputOverlayBg: 'rgba(0, 0, 0, 0.4)',
+  darkTintOverlay: 'rgba(10, 8, 7, 0.82)',
   toastBg: 'rgba(26, 22, 18, 0.95)',
   black: '#000000',
 };
