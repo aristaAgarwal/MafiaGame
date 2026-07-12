@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Share,
   Platform,
+  ImageBackground,
+  SafeAreaView,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
@@ -15,6 +17,7 @@ import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import ChatOverlay from '../components/ChatOverlay';
+import LobbySettings from '../components/LobbySettings';
 
 export default function LobbyScreen() {
   const {
@@ -29,7 +32,7 @@ export default function LobbyScreen() {
     updateSettings,
   } = useGameStore();
 
-  const [activeSection, setActiveSection] = useState<'PLAYERS' | 'SETTINGS'>('PLAYERS');
+  const [isSettingsVisible, setSettingsVisible] = useState(false);
   const [isChatVisible, setChatVisible] = useState(false);
 
   const playersList = Object.values(players);
@@ -47,6 +50,7 @@ export default function LobbyScreen() {
     }
   };
 
+
   return (
     <View style={styles.screenContainer}>
 
@@ -59,169 +63,62 @@ export default function LobbyScreen() {
         </Text>
         <Text style={styles.roomCodeSub}>ROOM CODE: {roomCode}</Text>
 
-        {activeSection === 'PLAYERS' ? (
-          <>
-            {/* Table Headers */}
-            <View style={styles.tableHeaderRow}>
-              <Text style={[styles.columnHeader, styles.colUsername]}>USERNAME</Text>
-              <Text style={[styles.columnHeader, styles.colRole]}>ROLE</Text>
-              <Text style={[styles.columnHeader, styles.colStatus]}>STATUS</Text>
-            </View>
+        {/* Table Headers */}
+        <View style={styles.tableHeaderRow}>
+          <Text style={[styles.columnHeader, styles.colUsername]}>USERNAME</Text>
+          <Text style={[styles.columnHeader, styles.colRole]}>ROLE</Text>
+          <Text style={[styles.columnHeader, styles.colStatus]}>STATUS</Text>
+        </View>
 
-            {/* Scrollable Player List inside the Card */}
-            <ScrollView
-              style={styles.playerListScroll}
-              contentContainerStyle={styles.playerListContent}
-              showsVerticalScrollIndicator={true}
-            >
-              {playersList.map((player) => {
-                const isMe = player.id === myId;
-                return (
-                  <View key={player.id} style={styles.playerRow}>
-                    {/* Avatar & Username */}
-                    <View style={[styles.colUsername, styles.playerNameContainer]}>
-                      <View style={[styles.avatarWrapper, isMe && styles.meAvatarWrapper]}>
-                        <Ionicons name="person" size={14} color={isMe ? COLORS.gold : COLORS.textPrimary} />
-                      </View>
-                      <Text style={[styles.playerName, isMe && styles.mePlayerName]} numberOfLines={1}>
-                        {player.name}
-                      </Text>
-                    </View>
+        {/* Scrollable Player List inside the Card */}
+        <ScrollView
+          style={styles.playerListScroll}
+          contentContainerStyle={styles.playerListContent}
+          showsVerticalScrollIndicator={true}
+        >
+          {playersList.map((player) => {
+            const isMe = player.id === myId;
+            return (
+              <View key={player.id} style={styles.playerRow}>
+                {/* Avatar & Username */}
+                <View style={[styles.colUsername, styles.playerNameContainer]}>
+                  <View style={[styles.avatarWrapper, isMe && styles.meAvatarWrapper]}>
+                    <Ionicons name="person" size={14} color={isMe ? COLORS.gold : COLORS.textPrimary} />
+                  </View>
+                  <Text style={[styles.playerName, isMe && styles.mePlayerName]} numberOfLines={1}>
+                    {player.name}
+                  </Text>
+                </View>
 
-                    {/* Role (Hidden in Lobby) */}
-                    <Text style={[styles.colRole, styles.roleText]}>
-                      Hidden?
-                    </Text>
+                {/* Role (Hidden in Lobby) */}
+                <Text style={[styles.colRole, styles.roleText]}>
+                  Hidden?
+                </Text>
 
-                    {/* Status / Host Badge */}
-                    <View style={[styles.colStatus, styles.statusContainer]}>
-                      {!player.isOnline ? (
-                        <View style={styles.offlineRow}>
-                          <Text style={styles.offlineText}>Offline</Text>
-                          {isHost && (
-                            <TouchableOpacity
-                              onPress={() => kickPlayer(player.id)}
-                              style={styles.smallKickBtn}
-                            >
-                              <Ionicons name="close-circle" size={16} color={COLORS.redBright} />
-                            </TouchableOpacity>
-                          )}
-                        </View>
-                      ) : player.isHost ? (
-                        <Text style={styles.hostStatusText}>Host</Text>
-                      ) : (
-                        <Text style={styles.readyStatusText}>Ready</Text>
+                {/* Status / Host Badge */}
+                <View style={[styles.colStatus, styles.statusContainer]}>
+                  {!player.isOnline ? (
+                    <View style={styles.offlineRow}>
+                      <Text style={styles.offlineText}>Offline</Text>
+                      {isHost && (
+                        <TouchableOpacity
+                          onPress={() => kickPlayer(player.id)}
+                          style={styles.smallKickBtn}
+                        >
+                          <Ionicons name="close-circle" size={16} color={COLORS.redBright} />
+                        </TouchableOpacity>
                       )}
                     </View>
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </>
-        ) : (
-          <View style={styles.settingsContainer}>
-            <Text style={styles.settingsSubHeader}>GAME SETTINGS</Text>
-            
-            {/* Mafia Count Row */}
-            <View style={styles.settingRow}>
-              <Text style={styles.settingLabelText}>MAFIA COUNT</Text>
-              {isHost ? (
-                <View style={styles.stepperContainer}>
-                  <TouchableOpacity 
-                    style={styles.stepperBtn} 
-                    onPress={() => updateSettings({ mafiaCount: Math.max(1, settings.mafiaCount - 1) })}
-                  >
-                    <Ionicons name="remove" size={14} color={COLORS.white} />
-                  </TouchableOpacity>
-                  <Text style={styles.stepperValueText}>{settings.mafiaCount}</Text>
-                  <TouchableOpacity 
-                    style={styles.stepperBtn} 
-                    onPress={() => updateSettings({ mafiaCount: Math.min(4, settings.mafiaCount + 1) })}
-                  >
-                    <Ionicons name="add" size={14} color={COLORS.white} />
-                  </TouchableOpacity>
+                  ) : player.isHost ? (
+                    <Text style={styles.hostStatusText}>Host</Text>
+                  ) : (
+                    <Text style={styles.readyStatusText}>Ready</Text>
+                  )}
                 </View>
-              ) : (
-                <Text style={styles.settingValueReadonly}>{settings.mafiaCount} PLAYERS</Text>
-              )}
-            </View>
-
-            {/* Police Role Row */}
-            <View style={styles.settingRow}>
-              <Text style={styles.settingLabelText}>POLICE ROLE</Text>
-              {isHost ? (
-                <View style={styles.toggleGroup}>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, settings.hasPolice && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ hasPolice: true })}
-                  >
-                    <Text style={[styles.toggleBtnText, settings.hasPolice && styles.toggleBtnTextActive]}>YES</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, !settings.hasPolice && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ hasPolice: false })}
-                  >
-                    <Text style={[styles.toggleBtnText, !settings.hasPolice && styles.toggleBtnTextActive]}>NO</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Text style={settings.hasPolice ? styles.enabledText : styles.disabledText}>
-                  {settings.hasPolice ? 'ENABLED' : 'DISABLED'}
-                </Text>
-              )}
-            </View>
-
-            {/* Doctor Role Row */}
-            <View style={styles.settingRow}>
-              <Text style={styles.settingLabelText}>DOCTOR ROLE</Text>
-              {isHost ? (
-                <View style={styles.toggleGroup}>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, settings.hasDoctor && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ hasDoctor: true })}
-                  >
-                    <Text style={[styles.toggleBtnText, settings.hasDoctor && styles.toggleBtnTextActive]}>YES</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, !settings.hasDoctor && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ hasDoctor: false })}
-                  >
-                    <Text style={[styles.toggleBtnText, !settings.hasDoctor && styles.toggleBtnTextActive]}>NO</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Text style={settings.hasDoctor ? styles.enabledText : styles.disabledText}>
-                  {settings.hasDoctor ? 'ENABLED' : 'DISABLED'}
-                </Text>
-              )}
-            </View>
-
-            {/* Reveal Roles Row */}
-            <View style={styles.settingRow}>
-              <Text style={styles.settingLabelText}>REVEAL ROLES</Text>
-              {isHost ? (
-                <View style={styles.toggleGroup}>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, settings.revealRoles && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ revealRoles: true })}
-                  >
-                    <Text style={[styles.toggleBtnText, settings.revealRoles && styles.toggleBtnTextActive]}>YES</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.toggleBtn, !settings.revealRoles && styles.toggleBtnActive]}
-                    onPress={() => updateSettings({ revealRoles: false })}
-                  >
-                    <Text style={[styles.toggleBtnText, !settings.revealRoles && styles.toggleBtnTextActive]}>NO</Text>
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <Text style={settings.revealRoles ? styles.enabledText : styles.disabledText}>
-                  {settings.revealRoles ? 'REVEAL ON DEATH' : 'KEEP ROLES HIDDEN'}
-                </Text>
-              )}
-            </View>
-          </View>
-        )}
+              </View>
+            );
+          })}
+        </ScrollView>
 
         {/* Divider */}
         <View style={styles.cardDivider} />
@@ -283,18 +180,18 @@ export default function LobbyScreen() {
             <TouchableOpacity 
               style={[
                 styles.controlCircle,
-                activeSection === 'SETTINGS' && styles.controlCircleActive
+                isSettingsVisible && styles.controlCircleActive
               ]} 
               activeOpacity={0.8}
-              onPress={() => setActiveSection(activeSection === 'PLAYERS' ? 'SETTINGS' : 'PLAYERS')}
+              onPress={() => setSettingsVisible(true)}
             >
               <Ionicons 
                 name="settings" 
                 size={18} 
-                color={activeSection === 'SETTINGS' ? COLORS.gold : COLORS.white} 
+                color={isSettingsVisible ? COLORS.gold : COLORS.white} 
               />
             </TouchableOpacity>
-            <View style={activeSection === 'SETTINGS' ? styles.dotIndicatorActive : styles.dotIndicatorInactive} />
+            <View style={isSettingsVisible ? styles.dotIndicatorActive : styles.dotIndicatorInactive} />
           </View>
 
           <View style={styles.controlItem}>
@@ -314,10 +211,10 @@ export default function LobbyScreen() {
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem} 
-          onPress={() => setActiveSection('PLAYERS')}
+          onPress={() => setSettingsVisible(false)}
         >
-          <Ionicons name="home" size={20} color={activeSection === 'PLAYERS' ? COLORS.gold : COLORS.navIconInactive} />
-          <Text style={[styles.navText, activeSection === 'PLAYERS' && styles.activeNavText]}>HOME</Text>
+          <Ionicons name="home" size={20} color={!isSettingsVisible ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, !isSettingsVisible && styles.activeNavText]}>HOME</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
@@ -325,10 +222,10 @@ export default function LobbyScreen() {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem} 
-          onPress={() => setActiveSection('SETTINGS')}
+          onPress={() => setSettingsVisible(true)}
         >
-          <Ionicons name="settings" size={20} color={activeSection === 'SETTINGS' ? COLORS.gold : COLORS.navIconInactive} />
-          <Text style={[styles.navText, activeSection === 'SETTINGS' && styles.activeNavText]}>SETTINGS</Text>
+          <Ionicons name="settings" size={20} color={isSettingsVisible ? COLORS.gold : COLORS.navIconInactive} />
+          <Text style={[styles.navText, isSettingsVisible && styles.activeNavText]}>SETTINGS</Text>
         </TouchableOpacity>
       </View>
 
@@ -336,6 +233,11 @@ export default function LobbyScreen() {
         channel="lobby" 
         visible={isChatVisible} 
         onClose={() => setChatVisible(false)} 
+      />
+
+      <LobbySettings 
+        visible={isSettingsVisible}
+        onClose={() => setSettingsVisible(false)}
       />
     </View>
   );

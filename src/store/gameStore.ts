@@ -47,6 +47,7 @@ interface GameState {
   toast: string | null;
   messages: ChatMessage[];
   settings: RoomSettings;
+  round: number;
 
   setPlayerName: (name: string) => void;
   showToast: (message: string) => void;
@@ -122,6 +123,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   nightActions: {},
   toast: null,
   messages: [],
+  round: 0,
   settings: {
     mafiaCount: 1,
     hasPolice: true,
@@ -210,6 +212,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         votes: room.votes || {},
         nightActions: room.nightActions || {},
         settings: room.settings || state.settings,
+        round: room.round !== undefined ? room.round : state.round,
         phase: (room.phase === 'LOBBY' && state.phase !== 'HOME') ? 'LOBBY' : state.phase
       }));
     });
@@ -225,20 +228,21 @@ export const useGameStore = create<GameState>((set, get) => ({
         votes: {}, 
         nightActions: room.nightActions || {}, 
         messages: [],
+        round: room.round || 1,
         settings: room.settings || get().settings
       });
     });
 
     socket.on('day_started', ({ room, killed }) => {
-      set({ players: room.players, phase: 'DAY', killedId: killed, votes: {}, nightActions: {} });
+      set({ players: room.players, phase: 'DAY', killedId: killed, votes: {}, nightActions: {}, round: room.round || get().round });
     });
     
     socket.on('voting_started', (room) => {
-      set({ phase: 'VOTING', votes: room.votes || {}, nightActions: {} });
+      set({ phase: 'VOTING', votes: room.votes || {}, nightActions: {}, round: room.round || get().round });
     });
 
     socket.on('night_started', ({ room, eliminatedId }) => {
-      set({ players: room.players, phase: 'NIGHT', eliminatedId, policeResult: null, votes: {}, nightActions: room.nightActions || {} });
+      set({ players: room.players, phase: 'NIGHT', eliminatedId, policeResult: null, votes: {}, nightActions: room.nightActions || {}, round: room.round || get().round });
     });
     
     socket.on('police_result', (result) => {
@@ -246,7 +250,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     socket.on('game_ended', ({ room, winner }) => {
-      set({ players: room.players, phase: 'END', winner, votes: {}, nightActions: {} });
+      set({ players: room.players, phase: 'END', winner, votes: {}, nightActions: {}, round: room.round || get().round });
     });
 
     socket.on('room_reset', (room) => {
@@ -260,6 +264,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         votes: {}, 
         nightActions: {}, 
         messages: [],
+        round: 0,
         settings: room.settings || get().settings
       });
     });
@@ -380,6 +385,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       votes: {},
       nightActions: {},
       messages: [],
+      round: 0,
       settings: {
         mafiaCount: 1,
         hasPolice: true,

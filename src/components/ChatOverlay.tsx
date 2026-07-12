@@ -25,7 +25,7 @@ interface ChatOverlayProps {
 }
 
 export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayProps) {
-  const { messages, myId, players, sendChatMessage, phase } = useGameStore();
+  const { messages, myId, players, sendChatMessage, phase, round } = useGameStore();
   const [inputText, setInputText] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -63,11 +63,25 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
   const isMafiaChannel = channel === 'mafia';
   const isLobbyChannel = channel === 'lobby';
   const borderHighlightColor = isMafiaChannel ? COLORS.redAccent : COLORS.borderGold;
+
+  // Header configs mapping from mockup references
+  const headerIcon = isMafiaChannel 
+    ? 'moon' 
+    : isLobbyChannel 
+      ? 'chatbubbles' 
+      : 'sunny';
+      
   const channelTitle = isMafiaChannel
-    ? 'MAFIA CONSPIRACY CHAT'
+    ? `NIGHT ${round || 1}`
     : isLobbyChannel
-      ? 'LOBBY CHAT'
-      : 'TOWN DISCUSSION';
+      ? 'LOBBY'
+      : `DAY ${round || 1}`;
+
+  const channelSubtitle = isMafiaChannel
+    ? 'Conspire. Kill. Survive.'
+    : isLobbyChannel
+      ? 'Gather your crew. Prepare for shadows.'
+      : 'Discuss. Share. Decide.';
 
   return (
     <Modal
@@ -83,27 +97,43 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
           resizeMode="cover"
         />
         <SafeAreaView style={styles.safeArea}>
-          {/* Header Row */}
+          {/* Header Container */}
           <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={onClose}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="arrow-back" size={24} color={COLORS.white} />
-            </TouchableOpacity>
+            <View style={styles.headerCenter}>
+              <Ionicons 
+                name={headerIcon as any} 
+                size={22} 
+                color={isMafiaChannel ? COLORS.redBright : COLORS.gold} 
+                style={styles.headerIcon}
+              />
+              
+              <View style={styles.headerTitleRow}>
+                <View style={styles.titleLine} />
+                <Text style={styles.channelTitleText}>
+                  {channelTitle}
+                </Text>
+                <View style={styles.titleLine} />
+              </View>
 
-            <View style={styles.titleContainer}>
-              <Text style={[
-                styles.channelTitle,
-                { color: isMafiaChannel ? COLORS.redBright : COLORS.gold }
-              ]}>
-                {channelTitle}
+              <Text style={styles.channelSubtitleText}>
+                {channelSubtitle}
               </Text>
             </View>
 
-            {/* Empty view to balance the flex layout for centering */}
-            <View style={styles.backButtonSpacer} />
+            {/* Absolute Back Button */}
+            <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="arrow-back" size={18} color={COLORS.white} />
+            </TouchableOpacity>
+
+            {/* Bottom Highlight Bar */}
+            <View style={[
+              styles.headerHighlightBar,
+              { backgroundColor: isMafiaChannel ? COLORS.redBright : COLORS.gold }
+            ]} />
           </View>
 
           {/* Chat Messages scroll area */}
@@ -237,36 +267,71 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    position: 'relative',
+  },
+  headerCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  headerIcon: {
+    marginBottom: 8,
+  },
+  headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle
+    justifyContent: 'center',
+    marginVertical: 4,
+    width: '100%',
+    paddingHorizontal: 24,
+  },
+  titleLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    marginHorizontal: 12,
+  },
+  channelTitleText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 18,
+    color: COLORS.textPrimary,
+    letterSpacing: 2,
+    textAlign: 'center',
+  },
+  channelSubtitleText: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 11,
+    color: COLORS.textMuted,
+    letterSpacing: 1,
+    textAlign: 'center',
+    marginTop: 2,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    position: 'absolute',
+    top: 12,
+    left: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.surfaceElevated,
     borderColor: COLORS.border,
     borderWidth: 1,
+    zIndex: 10,
   },
-  backButtonSpacer: {
-    width: 40,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  channelTitle: {
-    fontFamily: 'Cinzel_700Bold',
-    fontSize: 13,
-    letterSpacing: 1.5,
-    textAlign: 'center',
+  headerHighlightBar: {
+    position: 'absolute',
+    bottom: -1,
+    alignSelf: 'center',
+    width: 80,
+    height: 2.5,
+    borderRadius: 2,
   },
   messageList: {
     flex: 1,
