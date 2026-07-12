@@ -11,6 +11,8 @@ import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import ChatOverlay from '../components/ChatOverlay';
 
 export default function VotingScreen() {
   const {
@@ -24,6 +26,7 @@ export default function VotingScreen() {
 
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
   const [voteCast, setVoteCast] = useState(false);
+  const [isChatVisible, setChatVisible] = useState(false);
 
   const playersList = Object.values(players);
   const isHost = myId === hostId;
@@ -56,6 +59,14 @@ export default function VotingScreen() {
       <View style={styles.phaseHeader}>
         <Text style={styles.phaseTitleGold}>TOWN ACCUSATIONS</Text>
         <Text style={styles.phaseDesc}>Cast your vote to execute the suspected Mafia.</Text>
+        <TouchableOpacity 
+          style={styles.chatFloatingButton}
+          activeOpacity={0.7}
+          onPress={() => setChatVisible(true)}
+        >
+          <Ionicons name="chatbubble-ellipses" size={16} color={COLORS.gold} />
+          <Text style={styles.chatButtonText}>TOWN CHAT</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.actionContainer}>
@@ -121,6 +132,12 @@ export default function VotingScreen() {
           <Button title="TALLY VOTES & END DAY" onPress={endVoting} />
         </View>
       )}
+
+      <ChatOverlay 
+        channel="day" 
+        visible={isChatVisible} 
+        onClose={() => setChatVisible(false)} 
+      />
     </View>
   );
 }
@@ -259,5 +276,23 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     marginBottom: 12,
     textAlign: 'center',
+  },
+  chatFloatingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceElevated,
+    borderColor: COLORS.borderGold,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 10,
+    gap: 6,
+  },
+  chatButtonText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 9,
+    color: COLORS.gold,
+    letterSpacing: 1,
   },
 });

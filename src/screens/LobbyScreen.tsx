@@ -213,19 +213,12 @@ export default function LobbyScreen() {
           style={styles.navItem} 
           onPress={() => setSettingsVisible(false)}
         >
-          <Ionicons name="home" size={20} color={!isSettingsVisible ? COLORS.gold : COLORS.navIconInactive} />
-          <Text style={[styles.navText, !isSettingsVisible && styles.activeNavText]}>HOME</Text>
+          <Ionicons name="home" size={20} color={COLORS.gold} />
+          <Text style={[styles.navText, styles.activeNavText]}>HOME</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => showToast('Coming soon.')}>
           <Ionicons name="shield" size={20} color={COLORS.navIconInactive} />
           <Text style={styles.navText}>SHADOWS</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.navItem} 
-          onPress={() => setSettingsVisible(true)}
-        >
-          <Ionicons name="settings" size={20} color={isSettingsVisible ? COLORS.gold : COLORS.navIconInactive} />
-          <Text style={[styles.navText, isSettingsVisible && styles.activeNavText]}>SETTINGS</Text>
         </TouchableOpacity>
       </View>
 

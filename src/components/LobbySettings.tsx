@@ -90,19 +90,22 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
             <View style={styles.settingCard}>
               <Text style={styles.cardTitleText}>Mafia Count</Text>
               <View style={styles.sliderContainer}>
-                <View style={styles.sliderTrack}>
-                  <View style={[styles.sliderFill, { width: `${((settings.mafiaCount - 1) / 4) * 100}%` }]} />
-                  <View style={[styles.sliderThumb, { left: `${((settings.mafiaCount - 1) / 4) * 100}%`, transform: [{ translateX: -16 }] }]}>
-                    <Text style={styles.sliderThumbText}>{settings.mafiaCount}</Text>
+                <View style={styles.sliderTrackContainer}>
+                  <View style={styles.sliderTrack}>
+                    <View style={[styles.sliderFill, { width: `${((settings.mafiaCount - 1) / 4) * 100}%` }]} />
+                    <View style={[styles.sliderThumb, { left: `${((settings.mafiaCount - 1) / 4) * 100}%`, transform: [{ translateX: -16 }] }]}>
+                      <Text style={styles.sliderThumbText}>{settings.mafiaCount}</Text>
+                    </View>
                   </View>
                 </View>
-                <View style={styles.ticksRow}>
+                <View style={styles.sliderColumnsRow}>
                   {[1, 2, 3, 4, 5].map((val) => (
                     <TouchableOpacity 
                       key={val} 
                       disabled={!isHost}
+                      activeOpacity={0.7}
                       onPress={() => updateSettings({ mafiaCount: val })}
-                      style={styles.tickClickArea}
+                      style={styles.sliderColumn}
                     >
                       <Text style={[
                         styles.tickLabel,
@@ -293,9 +296,18 @@ const styles = StyleSheet.create({
     transform: [{ translateX: 0 }],
   },
   sliderContainer: {
-    marginTop: 16,
-    marginBottom: 8,
-    paddingHorizontal: 10,
+    marginTop: 12,
+    position: 'relative',
+    height: 70,
+    justifyContent: 'center',
+  },
+  sliderTrackContainer: {
+    position: 'absolute',
+    left: 10,
+    right: 10,
+    top: 12,
+    height: 32,
+    justifyContent: 'center',
   },
   sliderTrack: {
     height: 8,
@@ -304,7 +316,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#3a3a40',
     position: 'relative',
-    justifyContent: 'center',
   },
   sliderFill: {
     height: '100%',
@@ -313,6 +324,7 @@ const styles = StyleSheet.create({
   },
   sliderThumb: {
     position: 'absolute',
+    top: -12,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -332,14 +344,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.white,
   },
-  ticksRow: {
+  sliderColumnsRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 14,
   },
-  tickClickArea: {
-    paddingHorizontal: 8,
+  sliderColumn: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
   },
   tickLabel: {
     fontFamily: 'Cinzel_400Regular',
