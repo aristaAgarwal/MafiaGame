@@ -115,7 +115,10 @@ export default function NightScreen() {
 
           {myRole !== 'VILLAGER' && !nightActionSubmitted ? (
             <Card header="CHOOSE TARGET PLAYER">
-              {(myRole === 'DOCTOR' ? aliveAll : aliveOthers).map((player) => (
+              {(myRole === 'DOCTOR'
+                ? (settings?.doctorSelfSave !== false ? aliveAll : aliveOthers)
+                : aliveOthers
+              ).map((player) => (
                 <TouchableOpacity
                   key={player.id}
                   style={[

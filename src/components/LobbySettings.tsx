@@ -55,6 +55,18 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
 
   const isHost = myId === hostId;
 
+  // Discussion timer percentage index mapping
+  const discussionTicks = [30, 60, 90, 120, 180];
+  const discussionVal = settings.discussionTimer || 60;
+  const discussionIdx = discussionTicks.indexOf(discussionVal);
+  const discussionPercent = discussionIdx !== -1 ? (discussionIdx / 4) * 100 : 25;
+
+  // Night action timer percentage index mapping
+  const nightTicks = [15, 30, 45, 60, 90];
+  const nightVal = settings.nightActionTimer || 30;
+  const nightIdx = nightTicks.indexOf(nightVal);
+  const nightPercent = nightIdx !== -1 ? (nightIdx / 4) * 100 : 25;
+
   return (
     <Modal
       visible={visible}
@@ -86,6 +98,9 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
             style={styles.settingsScroll}
             contentContainerStyle={styles.settingsContentContainer}
           >
+            {/* --- SECTION 1: CORE METRICS --- */}
+            <Text style={styles.sectionHeader}>CORE CONFIGURATION</Text>
+
             {/* Mafia Count Card */}
             <View style={styles.settingCard}>
               <Text style={styles.cardTitleText}>Mafia Count</Text>
@@ -118,6 +133,149 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
                 </View>
               </View>
             </View>
+
+            {/* Town Discussion Timer Card */}
+            <View style={styles.settingCard}>
+              <Text style={styles.cardTitleText}>Town Discussion Timer</Text>
+              <View style={styles.sliderContainer}>
+                <View style={styles.sliderTrackContainer}>
+                  <View style={styles.sliderTrack}>
+                    <View style={[styles.sliderFill, { width: `${discussionPercent}%` }]} />
+                    <View style={[styles.sliderThumb, { left: `${discussionPercent}%`, transform: [{ translateX: -16 }] }]}>
+                      <Text style={styles.sliderThumbText}>
+                        {discussionVal === 180 ? '∞' : `${discussionVal}s`}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.sliderColumnsRow}>
+                  {discussionTicks.map((val) => (
+                    <TouchableOpacity 
+                      key={val} 
+                      disabled={!isHost}
+                      activeOpacity={0.7}
+                      onPress={() => updateSettings({ discussionTimer: val })}
+                      style={styles.sliderColumn}
+                    >
+                      <Text style={[
+                        styles.tickLabel,
+                        discussionVal === val && styles.tickLabelActive
+                      ]}>
+                        {val === 180 ? '∞' : `${val}s`}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            {/* Night Action Timer Card */}
+            <View style={styles.settingCard}>
+              <Text style={styles.cardTitleText}>Night Action Timer</Text>
+              <View style={styles.sliderContainer}>
+                <View style={styles.sliderTrackContainer}>
+                  <View style={styles.sliderTrack}>
+                    <View style={[styles.sliderFill, { width: `${nightPercent}%` }]} />
+                    <View style={[styles.sliderThumb, { left: `${nightPercent}%`, transform: [{ translateX: -16 }] }]}>
+                      <Text style={styles.sliderThumbText}>{nightVal}s</Text>
+                    </View>
+                  </View>
+                </View>
+                <View style={styles.sliderColumnsRow}>
+                  {nightTicks.map((val) => (
+                    <TouchableOpacity 
+                      key={val} 
+                      disabled={!isHost}
+                      activeOpacity={0.7}
+                      onPress={() => updateSettings({ nightActionTimer: val })}
+                      style={styles.sliderColumn}
+                    >
+                      <Text style={[
+                        styles.tickLabel,
+                        nightVal === val && styles.tickLabelActive
+                      ]}>
+                        {val}s
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            {/* --- SECTION 2: SPECIAL ROLE TOGGLES (COMING SOON) --- */}
+            <Text style={styles.sectionHeader}>SPECIAL ROLES</Text>
+
+            {/* Godfather Card */}
+            <View style={[styles.settingCard, styles.comingSoonCard]}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="skull-outline" size={20} color="#666" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <View style={styles.titleWithBadgeRow}>
+                    <Text style={[styles.cardTitleText, styles.comingSoonText]}>Godfather</Text>
+                    <View style={styles.comingSoonBadge}>
+                      <Text style={styles.comingSoonBadgeText}>SOON</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.cardDescText}>immunizes a Mafia player to Police inspection</Text>
+                </View>
+                <CustomToggle
+                  value={false}
+                  onValueChange={() => {}}
+                  disabled={true}
+                />
+              </View>
+            </View>
+
+            {/* Vigilante Card */}
+            <View style={[styles.settingCard, styles.comingSoonCard]}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="disc-outline" size={20} color="#666" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <View style={styles.titleWithBadgeRow}>
+                    <Text style={[styles.cardTitleText, styles.comingSoonText]}>Vigilante</Text>
+                    <View style={styles.comingSoonBadge}>
+                      <Text style={styles.comingSoonBadgeText}>SOON</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.cardDescText}>gives a Town player one shot per game to eliminate a suspect</Text>
+                </View>
+                <CustomToggle
+                  value={false}
+                  onValueChange={() => {}}
+                  disabled={true}
+                />
+              </View>
+            </View>
+
+            {/* Jester Card */}
+            <View style={[styles.settingCard, styles.comingSoonCard]}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="happy-outline" size={20} color="#666" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <View style={styles.titleWithBadgeRow}>
+                    <Text style={[styles.cardTitleText, styles.comingSoonText]}>Jester</Text>
+                    <View style={styles.comingSoonBadge}>
+                      <Text style={styles.comingSoonBadgeText}>SOON</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.cardDescText}>adds neutral player who wins if voted out by town</Text>
+                </View>
+                <CustomToggle
+                  value={false}
+                  onValueChange={() => {}}
+                  disabled={true}
+                />
+              </View>
+            </View>
+
+            {/* --- SECTION 3: GAMEPLAY MECHANICS --- */}
+            <Text style={styles.sectionHeader}>GAMEPLAY RULES</Text>
 
             {/* Enable Police Card */}
             <View style={styles.settingCard}>
@@ -155,6 +313,24 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
               </View>
             </View>
 
+            {/* Doctor Self-Save Card */}
+            <View style={styles.settingCard}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="heart-outline" size={20} color="#a31212" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <Text style={styles.cardTitleText}>Doctor Self-Save</Text>
+                  <Text style={styles.cardDescText}>allows the Doctor to protect themselves at night</Text>
+                </View>
+                <CustomToggle
+                  value={settings.doctorSelfSave !== false}
+                  onValueChange={(val) => updateSettings({ doctorSelfSave: val })}
+                  disabled={!isHost || !settings.hasDoctor}
+                />
+              </View>
+            </View>
+
             {/* Hide Role During Eviction Card */}
             <View style={styles.settingCard}>
               <View style={styles.cardRow}>
@@ -172,6 +348,43 @@ export default function LobbySettings({ visible, onClose }: LobbySettingsProps) 
                 />
               </View>
             </View>
+
+            {/* Anonymous Voting Card */}
+            <View style={styles.settingCard}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="people-outline" size={20} color="#a31212" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <Text style={styles.cardTitleText}>Anonymous Voting</Text>
+                  <Text style={styles.cardDescText}>masks who voted for whom in the live voting tally</Text>
+                </View>
+                <CustomToggle
+                  value={!!settings.anonymousVoting}
+                  onValueChange={(val) => updateSettings({ anonymousVoting: val })}
+                  disabled={!isHost}
+                />
+              </View>
+            </View>
+
+            {/* First Night Shield Card */}
+            <View style={styles.settingCard}>
+              <View style={styles.cardRow}>
+                <View style={styles.cardIconWrapper}>
+                  <Ionicons name="sparkles-outline" size={20} color="#a31212" />
+                </View>
+                <View style={styles.cardTextWrapper}>
+                  <Text style={styles.cardTitleText}>First Night Shield</Text>
+                  <Text style={styles.cardDescText}>prevents any deaths from occurring on Night 1</Text>
+                </View>
+                <CustomToggle
+                  value={!!settings.firstNightShield}
+                  onValueChange={(val) => updateSettings({ firstNightShield: val })}
+                  disabled={!isHost}
+                />
+              </View>
+            </View>
+
           </ScrollView>
         </SafeAreaView>
       </View>
@@ -219,6 +432,16 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  sectionHeader: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 12,
+    color: COLORS.gold,
+    letterSpacing: 1.5,
+    marginTop: 18,
+    marginBottom: 10,
+    paddingLeft: 4,
+    opacity: 0.85,
+  },
   settingCard: {
     backgroundColor: 'rgba(23, 23, 27, 0.85)',
     borderWidth: 1.2,
@@ -232,6 +455,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 6,
     elevation: 4,
+  },
+  comingSoonCard: {
+    borderColor: 'rgba(100, 100, 100, 0.15)',
+    opacity: 0.65,
+  },
+  comingSoonText: {
+    color: '#8c8c94',
   },
   cardRow: {
     flexDirection: 'row',
@@ -252,6 +482,25 @@ const styles = StyleSheet.create({
   cardTextWrapper: {
     flex: 1,
     marginRight: 16,
+  },
+  titleWithBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  comingSoonBadge: {
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    borderColor: COLORS.goldTranslucent,
+    borderWidth: 0.8,
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    marginLeft: 8,
+  },
+  comingSoonBadgeText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 8,
+    color: COLORS.gold,
+    letterSpacing: 0.5,
   },
   cardTitleText: {
     fontFamily: 'Cinzel_700Bold',
@@ -341,7 +590,7 @@ const styles = StyleSheet.create({
   },
   sliderThumbText: {
     fontFamily: 'Cinzel_700Bold',
-    fontSize: 12,
+    fontSize: 10, // slightly smaller to fit strings like '180s' or '120s'
     color: COLORS.white,
   },
   sliderColumnsRow: {
@@ -361,7 +610,7 @@ const styles = StyleSheet.create({
   },
   tickLabel: {
     fontFamily: 'Cinzel_400Regular',
-    fontSize: 12,
+    fontSize: 11,
     color: COLORS.textMuted,
   },
   tickLabelActive: {

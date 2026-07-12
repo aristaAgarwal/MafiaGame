@@ -28,6 +28,11 @@ export interface RoomSettings {
   hasPolice: boolean;
   hasDoctor: boolean;
   revealRoles: boolean;
+  discussionTimer?: number;
+  nightActionTimer?: number;
+  doctorSelfSave?: boolean;
+  anonymousVoting?: boolean;
+  firstNightShield?: boolean;
 }
 
 interface GameState {
@@ -128,7 +133,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     mafiaCount: 1,
     hasPolice: true,
     hasDoctor: true,
-    revealRoles: true
+    revealRoles: true,
+    discussionTimer: 60,
+    nightActionTimer: 30,
+    doctorSelfSave: true,
+    anonymousVoting: false,
+    firstNightShield: false
   },
 
   setPlayerName: (name) => set({ playerName: name }),

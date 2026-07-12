@@ -22,6 +22,7 @@ export default function VotingScreen() {
     votes,
     submitVote,
     endVoting,
+    settings,
   } = useGameStore();
 
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
@@ -115,7 +116,7 @@ export default function VotingScreen() {
                   <Text style={styles.playerNameText}>{player.name.toUpperCase()}</Text>
                   <Text style={styles.tallyCountText}>VOTES: {voters.length}</Text>
                 </View>
-                {voters.length > 0 && (
+                {voters.length > 0 && !settings?.anonymousVoting && (
                   <Text style={styles.tallyVotersText}>
                     BY: {voters.join(', ').toUpperCase()}
                   </Text>
