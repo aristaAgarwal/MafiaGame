@@ -14,6 +14,22 @@ export interface Player {
   isOnline: boolean;
 }
 
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: number;
+  channel: 'day' | 'mafia' | 'lobby';
+}
+
+export interface RoomSettings {
+  mafiaCount: number;
+  hasPolice: boolean;
+  hasDoctor: boolean;
+  revealRoles: boolean;
+}
+
 interface GameState {
   socket: Socket | null;
   playerName: string;
@@ -29,6 +45,8 @@ interface GameState {
   votes: Record<string, string>;
   nightActions: Record<string, string>;
   toast: string | null;
+  messages: ChatMessage[];
+  settings: RoomSettings;
 
   setPlayerName: (name: string) => void;
   showToast: (message: string) => void;
@@ -45,6 +63,8 @@ interface GameState {
   resetGame: () => void;
   leaveLobby: () => void;
   kickPlayer: (targetId: string) => void;
+  sendChatMessage: (text: string, channel: 'day' | 'mafia' | 'lobby') => void;
+  updateSettings: (settings: Partial<RoomSettings>) => void;
 }
 
 const checkOfflineAndProceed = (get: any, action: () => void) => {
@@ -101,6 +121,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   votes: {},
   nightActions: {},
   toast: null,
+  messages: [],
+  settings: {
+    mafiaCount: 1,
+    hasPolice: true,
+    hasDoctor: true,
+    revealRoles: true
+  },
 
   setPlayerName: (name) => set({ playerName: name }),
 
@@ -182,12 +209,24 @@ export const useGameStore = create<GameState>((set, get) => ({
         hostId: room.hostId,
         votes: room.votes || {},
         nightActions: room.nightActions || {},
+        settings: room.settings || state.settings,
         phase: (room.phase === 'LOBBY' && state.phase !== 'HOME') ? 'LOBBY' : state.phase
       }));
     });
 
     socket.on('game_started', (room) => {
-      set({ players: room.players, phase: room.phase, policeResult: null, killedId: null, eliminatedId: null, winner: null, votes: {}, nightActions: room.nightActions || {} });
+      set({ 
+        players: room.players, 
+        phase: room.phase, 
+        policeResult: null, 
+        killedId: null, 
+        eliminatedId: null, 
+        winner: null, 
+        votes: {}, 
+        nightActions: room.nightActions || {}, 
+        messages: [],
+        settings: room.settings || get().settings
+      });
     });
 
     socket.on('day_started', ({ room, killed }) => {
@@ -211,7 +250,28 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     socket.on('room_reset', (room) => {
-      set({ players: room.players, phase: 'LOBBY', winner: null, killedId: null, eliminatedId: null, policeResult: null, votes: {}, nightActions: {} });
+      set({ 
+        players: room.players, 
+        phase: 'LOBBY', 
+        winner: null, 
+        killedId: null, 
+        eliminatedId: null, 
+        policeResult: null, 
+        votes: {}, 
+        nightActions: {}, 
+        messages: [],
+        settings: room.settings || get().settings
+      });
+    });
+
+    socket.on('chat_message', (message: ChatMessage) => {
+      set((state) => ({
+        messages: [...state.messages, message]
+      }));
+    });
+
+    socket.on('chat_history', (history: ChatMessage[]) => {
+      set({ messages: history });
     });
 
     socket.on('error', (msg) => {
@@ -288,6 +348,21 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (socket && roomCode) socket.emit('kick_player', { roomCode, targetId });
   },
 
+  sendChatMessage: (text, channel) => {
+    const { socket, roomCode } = get();
+    if (socket && roomCode) {
+      socket.emit('send_chat_message', { roomCode, text, channel });
+    }
+  },
+
+  updateSettings: (newSettings) => {
+    const { socket, roomCode, settings } = get();
+    if (socket && roomCode) {
+      const updated = { ...settings, ...newSettings };
+      socket.emit('update_settings', { roomCode, settings: updated });
+    }
+  },
+
   leaveLobby: () => {
     const { socket } = get();
     if (socket) {
@@ -303,7 +378,14 @@ export const useGameStore = create<GameState>((set, get) => ({
       policeResult: null,
       winner: null,
       votes: {},
-      nightActions: {}
+      nightActions: {},
+      messages: [],
+      settings: {
+        mafiaCount: 1,
+        hasPolice: true,
+        hasDoctor: true,
+        revealRoles: true
+      }
     });
   }
 }));

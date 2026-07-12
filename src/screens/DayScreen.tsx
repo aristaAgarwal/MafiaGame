@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,7 @@ import Button from '../components/Button';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import ChatOverlay from '../components/ChatOverlay';
 
 export default function DayScreen() {
   const {
@@ -20,7 +21,10 @@ export default function DayScreen() {
     killedId,
     startVoting,
     kickPlayer,
+    settings,
   } = useGameStore();
+
+  const [isChatVisible, setChatVisible] = useState(false);
 
   const playersList = Object.values(players);
   const isHost = myId === hostId;
@@ -31,6 +35,14 @@ export default function DayScreen() {
       <View style={styles.phaseHeader}>
         <Text style={styles.phaseTitleGold}>DAY PHASE</Text>
         <Text style={styles.phaseDesc}>The sun rises. Shadows retreat.</Text>
+        <TouchableOpacity 
+          style={styles.chatFloatingButton}
+          activeOpacity={0.7}
+          onPress={() => setChatVisible(true)}
+        >
+          <Ionicons name="chatbubble-ellipses" size={16} color={COLORS.gold} />
+          <Text style={styles.chatButtonText}>TOWN CHAT</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.actionContainer}>
@@ -42,7 +54,7 @@ export default function DayScreen() {
                 {killedPlayer.name.toUpperCase()} WAS FOUND DEAD.
               </Text>
               <Text style={styles.newsSubtext}>
-                They were brutally eliminated in their sleep. Faction: {killedPlayer.role}.
+                They were brutally eliminated in their sleep. Faction: {settings.revealRoles ? killedPlayer.role : 'Hidden'}.
               </Text>
             </View>
           ) : (
@@ -98,12 +110,13 @@ export default function DayScreen() {
           ))}
         </Card>
 
-        <Card>
-          <Text style={styles.infoText}>
-            Discuss as a town to identify the Mafia. Host will call for votes when the discussion is finished.
-          </Text>
-        </Card>
       </ScrollView>
+
+      <ChatOverlay 
+        channel="day" 
+        visible={isChatVisible} 
+        onClose={() => setChatVisible(false)} 
+      />
 
       {isHost && (
         <View style={styles.hostPanel}>
@@ -272,5 +285,23 @@ const styles = StyleSheet.create({
   smallKickBtn: {
     marginLeft: 6,
     padding: 2,
+  },
+  chatFloatingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceElevated,
+    borderColor: COLORS.borderGold,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 10,
+    gap: 6,
+  },
+  chatButtonText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 9,
+    color: COLORS.gold,
+    letterSpacing: 1,
   },
 });

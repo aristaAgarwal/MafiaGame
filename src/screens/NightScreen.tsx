@@ -12,6 +12,8 @@ import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import ChatOverlay from '../components/ChatOverlay';
 
 export default function NightScreen() {
   const {
@@ -22,10 +24,13 @@ export default function NightScreen() {
     nightActions,
     submitNightAction,
     endNight,
+    eliminatedId,
+    settings,
   } = useGameStore();
 
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
   const [nightActionSubmitted, setNightActionSubmitted] = useState(false);
+  const [isChatVisible, setChatVisible] = useState(false);
 
   const playersList = Object.values(players);
   const isHost = myId === hostId;
@@ -76,7 +81,29 @@ export default function NightScreen() {
       <View style={styles.phaseHeader}>
         <Text style={styles.phaseTitleRed}>NIGHT PHASE</Text>
         <Text style={styles.phaseDesc}>The town sleeps. Dark forces gather.</Text>
+        {myRole === 'MAFIA' && (
+          <TouchableOpacity 
+            style={styles.chatFloatingButton}
+            activeOpacity={0.7}
+            onPress={() => setChatVisible(true)}
+          >
+            <Ionicons name="chatbubble-ellipses" size={16} color={COLORS.redBright} />
+            <Text style={styles.chatButtonText}>MAFIA CHAT</Text>
+          </TouchableOpacity>
+        )}
       </View>
+
+      {eliminatedId && players[eliminatedId] && (
+        <Card style={{ marginBottom: 15, width: '100%' }}>
+          <Text style={{ fontFamily: 'Cinzel_700Bold', fontSize: 10, color: COLORS.redBright, letterSpacing: 1, marginBottom: 4 }}>ELIMINATION NEWS</Text>
+          <Text style={{ fontFamily: 'Cinzel_700Bold', fontSize: 12, color: COLORS.textPrimary, letterSpacing: 0.5 }}>
+            {players[eliminatedId].name.toUpperCase()} WAS ELIMINATED BY THE TOWN.
+          </Text>
+          <Text style={{ fontFamily: 'Cinzel_400Regular', fontSize: 10.5, color: COLORS.textMuted, marginTop: 4, letterSpacing: 0.5 }}>
+            Faction: {settings.revealRoles ? players[eliminatedId].role : 'Hidden'}
+          </Text>
+        </Card>
+      )}
 
       {isAlive ? (
         <ScrollView style={styles.actionContainer}>
@@ -141,6 +168,7 @@ export default function NightScreen() {
               </Text>
             </Card>
           )}
+
         </ScrollView>
       ) : (
         <Card>
@@ -173,6 +201,12 @@ export default function NightScreen() {
           <Button title="END NIGHT PHASE" onPress={endNight} style={{ marginTop: 10 }} />
         </View>
       )}
+
+      <ChatOverlay 
+        channel="mafia" 
+        visible={isChatVisible} 
+        onClose={() => setChatVisible(false)} 
+      />
     </View>
   );
 }
@@ -350,5 +384,23 @@ const styles = StyleSheet.create({
     color: COLORS.gold,
     fontSize: 11,
     letterSpacing: 0.5,
+  },
+  chatFloatingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceElevated,
+    borderColor: COLORS.redAccent,
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginTop: 10,
+    gap: 6,
+  },
+  chatButtonText: {
+    fontFamily: 'Cinzel_700Bold',
+    fontSize: 9,
+    color: COLORS.redBright,
+    letterSpacing: 1,
   },
 });
