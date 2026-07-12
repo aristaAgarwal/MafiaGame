@@ -63,10 +63,10 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
   const isMafiaChannel = channel === 'mafia';
   const isLobbyChannel = channel === 'lobby';
   const borderHighlightColor = isMafiaChannel ? COLORS.redAccent : COLORS.borderGold;
-  const channelTitle = isMafiaChannel 
-    ? 'MAFIA CONSPIRACY CHAT' 
-    : isLobbyChannel 
-      ? 'LOBBY CHAT' 
+  const channelTitle = isMafiaChannel
+    ? 'MAFIA CONSPIRACY CHAT'
+    : isLobbyChannel
+      ? 'LOBBY CHAT'
       : 'TOWN DISCUSSION';
 
   return (
@@ -77,8 +77,8 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
       onRequestClose={onClose}
     >
       <View style={styles.overlayContainer}>
-        <ImageBackground 
-          source={chatBg} 
+        <ImageBackground
+          source={chatBg}
           style={StyleSheet.absoluteFillObject}
           resizeMode="cover"
         />
@@ -86,23 +86,23 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
         <SafeAreaView style={styles.safeArea}>
           {/* Header Row */}
           <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton} 
+            <TouchableOpacity
+              style={styles.backButton}
               onPress={onClose}
               activeOpacity={0.7}
             >
               <Ionicons name="arrow-back" size={24} color={COLORS.white} />
             </TouchableOpacity>
-            
+
             <View style={styles.titleContainer}>
               <Text style={[
-                styles.channelTitle, 
+                styles.channelTitle,
                 { color: isMafiaChannel ? COLORS.redBright : COLORS.gold }
               ]}>
                 {channelTitle}
               </Text>
             </View>
-            
+
             {/* Empty view to balance the flex layout for centering */}
             <View style={styles.backButtonSpacer} />
           </View>
@@ -169,10 +169,10 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
                   value={inputText}
                   onChangeText={setInputText}
                   placeholder={
-                    isMafiaChannel 
-                      ? "Coordinate the next kill..." 
-                      : isLobbyChannel 
-                        ? "Chat with the players in lobby..." 
+                    isMafiaChannel
+                      ? "Coordinate the next kill..."
+                      : isLobbyChannel
+                        ? "Chat with the players in lobby..."
                         : "Cast suspicion, discuss clues..."
                   }
                   placeholderTextColor={COLORS.textMuted}
@@ -183,18 +183,18 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
                   autoCorrect={false}
                   blurOnSubmit={false}
                 />
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
-                    styles.sendButton, 
+                    styles.sendButton,
                     { backgroundColor: isMafiaChannel ? COLORS.redAccent : COLORS.surfaceElevated }
-                  ]} 
+                  ]}
                   onPress={handleSend}
                   activeOpacity={0.7}
                 >
-                  <Ionicons 
-                    name="send" 
-                    size={14} 
-                    color={inputText.trim() ? (isMafiaChannel ? COLORS.white : COLORS.gold) : COLORS.textMuted} 
+                  <Ionicons
+                    name="send"
+                    size={14}
+                    color={inputText.trim() ? (isMafiaChannel ? COLORS.white : COLORS.gold) : COLORS.textMuted}
                   />
                 </TouchableOpacity>
               </>
@@ -215,10 +215,6 @@ const styles = StyleSheet.create({
   overlayContainer: {
     flex: 1,
   },
-  darkOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10, 8, 7, 0.82)',
-  },
   safeArea: {
     flex: 1,
   },
@@ -229,8 +225,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
-    backgroundColor: COLORS.surface,
+    borderBottomColor: COLORS.borderSubtle
   },
   backButton: {
     width: 40,
