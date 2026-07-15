@@ -352,7 +352,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     socket.on('error', (msg) => {
-      alert(msg);
+      get().showToast(msg);
     });
 
     set({ socket });
