@@ -12,6 +12,7 @@ import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import ChatOverlay from '../components/ChatOverlay';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function DayScreen() {
   const {
@@ -79,7 +80,13 @@ export default function DayScreen() {
               ]}
             >
               <View style={styles.playerInfoRow}>
-                <Text style={[styles.playerNameText, !player.isAlive && styles.strikeThrough]}>
+                <PlayerAvatar
+                  avatar={player.avatar}
+                  size={28}
+                  borderRadius={6}
+                  isHighlighted={player.isAlive}
+                />
+                <Text style={[styles.playerNameText, !player.isAlive && styles.strikeThrough, { marginLeft: 10 }]}>
                   {player.name.toUpperCase()}
                 </Text>
                 {!player.isOnline && player.isAlive && (

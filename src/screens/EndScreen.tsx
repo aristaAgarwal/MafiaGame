@@ -10,6 +10,7 @@ import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function EndScreen() {
   const {
@@ -36,16 +37,24 @@ export default function EndScreen() {
         <Card header="FINAL REVEALS">
           {playersList.map((player) => (
             <View key={player.id} style={styles.revealRow}>
-              <View>
-                <Text style={styles.playerNameText}>{player.name.toUpperCase()}</Text>
-                <Text
-                  style={[
-                    styles.revealRole,
-                    { color: player.role === 'MAFIA' ? COLORS.mafia : COLORS.doctor },
-                  ]}
-                >
-                  ROLE: {player.role}
-                </Text>
+              <View style={styles.revealPlayerInfo}>
+                <PlayerAvatar
+                  avatar={player.avatar}
+                  size={32}
+                  borderRadius={8}
+                  isHighlighted={player.isAlive}
+                />
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={styles.playerNameText}>{player.name.toUpperCase()}</Text>
+                  <Text
+                    style={[
+                      styles.revealRole,
+                      { color: player.role === 'MAFIA' ? COLORS.mafia : COLORS.doctor },
+                    ]}
+                  >
+                    ROLE: {player.role}
+                  </Text>
+                </View>
               </View>
               <Text style={player.isAlive ? styles.aliveLabel : styles.deadLabel}>
                 {player.isAlive ? 'SURVIVED' : 'DEAD'}
@@ -111,6 +120,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+  },
+  revealPlayerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   revealRole: {
     fontFamily: 'Cinzel_400Regular',

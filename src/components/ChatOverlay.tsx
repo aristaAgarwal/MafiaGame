@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useGameStore } from '../store/gameStore';
 import { COLORS } from '../constants/theme';
+import PlayerAvatar from './PlayerAvatar';
 
 const chatBg = require('../../assets/chatBg.jpeg');
 
@@ -65,12 +66,12 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
   const borderHighlightColor = isMafiaChannel ? COLORS.redAccent : COLORS.borderGold;
 
   // Header configs mapping from mockup references
-  const headerIcon = isMafiaChannel 
-    ? 'moon' 
-    : isLobbyChannel 
-      ? 'chatbubbles' 
+  const headerIcon = isMafiaChannel
+    ? 'moon'
+    : isLobbyChannel
+      ? 'chatbubbles'
       : 'sunny';
-      
+
   const channelTitle = isMafiaChannel
     ? `NIGHT ${round || 1}`
     : isLobbyChannel
@@ -100,13 +101,13 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
           {/* Header Container */}
           <View style={styles.header}>
             <View style={styles.headerCenter}>
-              <Ionicons 
-                name={headerIcon as any} 
-                size={22} 
-                color={isMafiaChannel ? COLORS.redBright : COLORS.gold} 
+              <Ionicons
+                name={headerIcon as any}
+                size={22}
+                color={isMafiaChannel ? COLORS.redBright : COLORS.gold}
                 style={styles.headerIcon}
               />
-              
+
               <View style={styles.headerTitleRow}>
                 <View style={styles.titleLine} />
                 <Text style={styles.channelTitleText}>
@@ -121,8 +122,8 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
             </View>
 
             {/* Absolute Back Button */}
-            <TouchableOpacity 
-              style={styles.backButton} 
+            <TouchableOpacity
+              style={styles.backButton}
               onPress={onClose}
               activeOpacity={0.7}
             >
@@ -174,6 +175,15 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
                       isMe ? styles.messageRowRight : styles.messageRowLeft,
                     ]}
                   >
+                    {!isMe && (
+                      <View style={styles.chatAvatarContainerLeft}>
+                        <PlayerAvatar
+                          avatar={players[msg.senderId]?.avatar}
+                          size={28}
+                          borderRadius={14}
+                        />
+                      </View>
+                    )}
                     <View
                       style={[
                         styles.messageBubble,
@@ -202,6 +212,16 @@ export default function ChatOverlay({ channel, visible, onClose }: ChatOverlayPr
                         {formatTime(msg.timestamp)}
                       </Text>
                     </View>
+
+                    {isMe && (
+                      <View style={styles.chatAvatarContainerRight}>
+                        <PlayerAvatar
+                          avatar={players[msg.senderId]?.avatar || me?.avatar}
+                          size={28}
+                          borderRadius={14}
+                        />
+                      </View>
+                    )}
                   </View>
                 );
               })
@@ -268,7 +288,7 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 16,
-    paddingTop: 16,
+    paddingTop: Platform.OS === 'ios' ? 44 : 54,
     paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
@@ -313,7 +333,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 12,
+    top: Platform.OS === 'ios' ? 40 : 50,
     left: 16,
     width: 36,
     height: 36,
@@ -361,11 +381,21 @@ const styles = StyleSheet.create({
   },
   messageRowLeft: {
     alignSelf: 'flex-start',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
+    flexDirection: 'row',
+  },
+  chatAvatarContainerLeft: {
+    marginRight: 8,
+    marginBottom: 2,
+  },
+  chatAvatarContainerRight: {
+    marginLeft: 8,
+    marginBottom: 2,
   },
   messageRowRight: {
     alignSelf: 'flex-end',
     alignItems: 'flex-end',
+    flexDirection: 'row',
   },
   senderNameInBubble: {
     fontFamily: 'Cinzel_700Bold',
@@ -414,7 +444,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 30,
     backgroundColor: COLORS.surface,
     borderTopWidth: 1,
   },

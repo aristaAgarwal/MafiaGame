@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  Linking,
 } from 'react-native';
 import { useFonts, Cinzel_400Regular, Cinzel_700Bold } from '@expo-google-fonts/cinzel';
 import { useGameStore } from './src/store/gameStore';
@@ -34,6 +35,12 @@ import Button from './src/components/Button';
 export default function App() {
   const phase = useGameStore((state) => state.phase);
   const leaveLobby = useGameStore((state) => state.leaveLobby);
+  const isOffline = useGameStore((state) => state.isOffline);
+  const isServerDown = useGameStore((state) => state.isServerDown);
+  const isConnecting = useGameStore((state) => state.isConnecting);
+  const lastConnectedUrl = useGameStore((state) => state.lastConnectedUrl);
+  const reconnect = useGameStore((state) => state.reconnect);
+
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -142,6 +149,74 @@ export default function App() {
           </TouchableOpacity>
         )}
 
+        {/* Connection Error Overlay */}
+        {(isOffline || isServerDown) && (
+          <View style={styles.confirmOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={{ width: '85%', maxWidth: 320 }}>
+                <Card style={{ width: '100%' }}>
+                  <View style={styles.errorIconContainer}>
+                    <Ionicons 
+                      name={isOffline ? "cloud-offline-outline" : "server-outline"} 
+                      size={44} 
+                      color={isOffline ? COLORS.redBright : COLORS.gold} 
+                    />
+                  </View>
+                  <Text style={styles.confirmTitle}>
+                    {isOffline ? 'NO INTERNET' : 'SERVER UNREACHABLE'}
+                  </Text>
+                  <Text style={styles.confirmText}>
+                    {isOffline 
+                      ? 'Please check your internet connection. We are trying to reconnect you to the Mafia network.' 
+                      : `Could not connect to the game server at:\n${lastConnectedUrl || 'unknown'}\n\nPlease check if the server is running or configure settings.`}
+                  </Text>
+
+                  <View style={styles.errorButtonsContainer}>
+                    {isOffline ? (
+                      <>
+                        <Button
+                          title="SETTINGS"
+                          variant="outline"
+                          onPress={async () => {
+                            try {
+                              await Linking.openSettings();
+                            } catch (err) {
+                              console.error('Failed to open settings:', err);
+                            }
+                          }}
+                          style={styles.errorBtn}
+                        />
+                        <Button
+                          title={isConnecting ? "CONNECTING" : "RETRY"}
+                          variant="primary"
+                          loading={isConnecting}
+                          onPress={reconnect}
+                          style={styles.errorBtn}
+                        />
+                      </>
+                    ) : (
+                      <Button
+                        title={isConnecting ? "CONNECTING" : "RETRY"}
+                        variant="primary"
+                        loading={isConnecting}
+                        onPress={reconnect}
+                        style={{ width: '100%' }}
+                      />
+                    )}
+                  </View>
+
+                  <Button
+                    title="EXIT TO HOME"
+                    variant="secondary"
+                    onPress={leaveLobby}
+                    style={styles.exitBtn}
+                  />
+                </Card>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        )}
+
         <Toast />
       </ImageBackground>
     </View>
@@ -237,5 +312,22 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     flex: 1,
+  },
+  errorIconContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  errorButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: 12,
+    marginBottom: 12,
+  },
+  errorBtn: {
+    flex: 1,
+  },
+  exitBtn: {
+    width: '100%',
   },
 });

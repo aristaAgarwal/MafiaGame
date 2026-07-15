@@ -13,6 +13,7 @@ import Card from '../components/Card';
 import { COLORS } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import ChatOverlay from '../components/ChatOverlay';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function VotingScreen() {
   const {
@@ -82,7 +83,15 @@ export default function VotingScreen() {
                 ]}
                 onPress={() => setSelectedTarget(player.id)}
               >
-                <Text style={styles.playerNameText}>{player.name.toUpperCase()}</Text>
+                <View style={styles.targetPlayerInfo}>
+                  <PlayerAvatar
+                    avatar={player.avatar}
+                    size={28}
+                    borderRadius={6}
+                    isHighlighted={selectedTarget === player.id}
+                  />
+                  <Text style={[styles.playerNameText, { marginLeft: 10 }]}>{player.name.toUpperCase()}</Text>
+                </View>
                 <View style={styles.radioOuter}>
                   {selectedTarget === player.id && <View style={styles.radioInner} />}
                 </View>
@@ -113,7 +122,14 @@ export default function VotingScreen() {
             return (
               <View key={player.id} style={styles.tallyRow}>
                 <View style={styles.tallyInfo}>
-                  <Text style={styles.playerNameText}>{player.name.toUpperCase()}</Text>
+                  <View style={styles.targetPlayerInfo}>
+                    <PlayerAvatar
+                      avatar={player.avatar}
+                      size={24}
+                      borderRadius={6}
+                    />
+                    <Text style={[styles.playerNameText, { marginLeft: 8 }]}>{player.name.toUpperCase()}</Text>
+                  </View>
                   <Text style={styles.tallyCountText}>VOTES: {voters.length}</Text>
                 </View>
                 {voters.length > 0 && !settings?.anonymousVoting && (
@@ -201,6 +217,11 @@ const styles = StyleSheet.create({
   targetSelectRowSelected: {
     borderColor: COLORS.gold,
     backgroundColor: COLORS.overlayGold05,
+  },
+  targetPlayerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   playerNameText: {
     fontFamily: 'Cinzel_700Bold',

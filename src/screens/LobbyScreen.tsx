@@ -18,6 +18,7 @@ import { COLORS } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import ChatOverlay from '../components/ChatOverlay';
 import LobbySettings from '../components/LobbySettings';
+import PlayerAvatar from '../components/PlayerAvatar';
 
 export default function LobbyScreen() {
   const {
@@ -83,7 +84,12 @@ export default function LobbyScreen() {
                 {/* Avatar & Username */}
                 <View style={[styles.colUsername, styles.playerNameContainer]}>
                   <View style={[styles.avatarWrapper, isMe && styles.meAvatarWrapper]}>
-                    <Ionicons name="person" size={14} color={isMe ? COLORS.gold : COLORS.textPrimary} />
+                    <PlayerAvatar
+                      avatar={player.avatar}
+                      size={24}
+                      borderRadius={6}
+                      isHighlighted={isMe}
+                    />
                   </View>
                   <Text style={[styles.playerName, isMe && styles.mePlayerName]} numberOfLines={1}>
                     {player.name}

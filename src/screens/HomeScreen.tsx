@@ -16,6 +16,8 @@ import { useGameStore } from '../store/gameStore';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Card from '../components/Card';
+import PlayerAvatar from '../components/PlayerAvatar';
+import AvatarSelector from '../components/AvatarSelector';
 import { COLORS } from '../constants/theme';
 import RulesScreen from './RulesScreen';
 
@@ -26,6 +28,8 @@ export default function HomeScreen() {
     createRoom,
     joinRoom,
     setPlayerName,
+    setPlayerAvatar,
+    playerAvatar,
     showToast,
   } = useGameStore();
 
@@ -34,6 +38,7 @@ export default function HomeScreen() {
   const [pendingAction, setPendingAction] = useState<{ type: 'CREATE' | 'JOIN'; code?: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'HOME' | 'SHADOWS' | 'MESSAGES' | 'SETTINGS'>('HOME');
   const [customServerUrl, setCustomServerUrl] = useState('');
+  const [avatarSelectorVisible, setAvatarSelectorVisible] = useState(false);
 
   // Handle lazy socket connection & emissions
   useEffect(() => {
@@ -87,6 +92,24 @@ export default function HomeScreen() {
         {activeTab === 'HOME' && (
           <Card style={styles.profileCard}>
             <Text style={styles.sectionLabel}>PLAYER PROFILE</Text>
+
+            {/* Tappable Avatar */}
+            <TouchableOpacity
+              style={styles.avatarTouchable}
+              onPress={() => setAvatarSelectorVisible(true)}
+              activeOpacity={0.7}
+            >
+              <PlayerAvatar
+                avatar={playerAvatar}
+                size={72}
+                borderRadius={36}
+                isHighlighted={!!playerAvatar}
+                serverUrl={customServerUrl.trim() || undefined}
+              />
+              <View style={styles.avatarEditBadge}>
+                <Ionicons name="pencil" size={10} color={COLORS.white} />
+              </View>
+            </TouchableOpacity>
 
             <TextInput
               style={styles.playerNameInput}
@@ -156,6 +179,15 @@ export default function HomeScreen() {
             />
           </Card>
         )}
+
+        {/* Avatar Selector Modal */}
+        <AvatarSelector
+          visible={avatarSelectorVisible}
+          onClose={() => setAvatarSelectorVisible(false)}
+          onSelect={(avatar) => setPlayerAvatar(avatar)}
+          selectedAvatar={playerAvatar}
+          serverUrl={customServerUrl.trim() || undefined}
+        />
 
         {/* SHADOWS (Rules) View */}
         {activeTab === 'SHADOWS' && (
@@ -309,6 +341,33 @@ const styles = StyleSheet.create({
     letterSpacing: 4,
     textAlign: 'center',
     marginBottom: 6,
+  },
+  avatarTouchable: {
+    alignSelf: 'center',
+    marginBottom: 4,
+    marginTop: 8,
+    position: 'relative',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: COLORS.surfaceElevated,
+    borderWidth: 1.5,
+    borderColor: COLORS.goldTranslucent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarHint: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 9,
+    color: COLORS.textMuted,
+    letterSpacing: 1.5,
+    textAlign: 'center',
+    marginBottom: 12,
   },
   goldLine: {
     width: 120,

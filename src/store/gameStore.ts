@@ -8,6 +8,7 @@ const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000'
 export interface Player {
   id: string;
   name: string;
+  avatar?: string | null;
   role: string | null;
   isAlive: boolean;
   isHost: boolean;
@@ -38,6 +39,7 @@ export interface RoomSettings {
 interface GameState {
   socket: Socket | null;
   playerName: string;
+  playerAvatar: string | null;
   roomCode: string | null;
   phase: 'HOME' | 'LOBBY' | 'ROLE_REVEAL' | 'NIGHT' | 'DAY' | 'VOTING' | 'END';
   players: Record<string, Player>;
@@ -53,8 +55,13 @@ interface GameState {
   messages: ChatMessage[];
   settings: RoomSettings;
   round: number;
+  isOffline: boolean;
+  isServerDown: boolean;
+  isConnecting: boolean;
+  lastConnectedUrl: string | null;
 
   setPlayerName: (name: string) => void;
+  setPlayerAvatar: (avatar: string | null) => void;
   showToast: (message: string) => void;
   connectSocket: (serverUrl?: string) => void;
   createRoom: () => void;
@@ -71,7 +78,25 @@ interface GameState {
   kickPlayer: (targetId: string) => void;
   sendChatMessage: (text: string, channel: 'day' | 'mafia' | 'lobby') => void;
   updateSettings: (settings: Partial<RoomSettings>) => void;
+  reconnect: () => void;
 }
+
+const checkInternetConnectivity = async (): Promise<boolean> => {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const response = await fetch('https://clients3.google.com/generate_204', {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+    clearTimeout(timeoutId);
+    return response.status >= 200 && response.status < 400;
+  } catch (error) {
+    console.log('Connectivity ping failed:', error);
+    return false;
+  }
+};
 
 const checkOfflineAndProceed = (get: any, action: () => void) => {
   const { players, socket, roomCode } = get() as GameState;
@@ -115,6 +140,7 @@ const checkOfflineAndProceed = (get: any, action: () => void) => {
 export const useGameStore = create<GameState>((set, get) => ({
   socket: null,
   playerName: '',
+  playerAvatar: null,
   roomCode: null,
   phase: 'HOME',
   players: {},
@@ -129,6 +155,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   toast: null,
   messages: [],
   round: 0,
+  isOffline: false,
+  isServerDown: false,
+  isConnecting: false,
+  lastConnectedUrl: null,
   settings: {
     mafiaCount: 1,
     hasPolice: true,
@@ -142,6 +172,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   setPlayerName: (name) => set({ playerName: name }),
+  setPlayerAvatar: (avatar) => set({ playerAvatar: avatar }),
 
   showToast: (message) => {
     set({ toast: message });
@@ -167,6 +198,8 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
     
     console.log('Connecting to socket server at:', url);
+    set({ isConnecting: true, isOffline: false, isServerDown: false, lastConnectedUrl: url });
+
     const socket = io(url, {
       timeout: 20000, // 20 seconds timeout for slower networks or server cold-starts
       reconnection: true,
@@ -177,7 +210,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     socket.on('connect', () => {
       console.log('Connected to server with ID:', socket.id);
       const previousId = get().myId; // Store previous socket ID before updating
-      set({ myId: socket.id });
+      set({ myId: socket.id, isConnecting: false, isOffline: false, isServerDown: false });
       // Auto-rejoin if we were in a room
       const { roomCode, playerName } = get();
       if (roomCode && playerName) {
@@ -185,10 +218,39 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
-    socket.on('connect_error', (err) => {
+    socket.on('connect_error', async (err) => {
       console.error('Socket connection error:', err);
-      alert(`Connection failed to ${url}. Please verify the server is running and the IP/port are correct.`);
-      set({ socket: null, myId: null });
+      set({ myId: null });
+      const hasInternet = await checkInternetConnectivity();
+      if (hasInternet) {
+        set({ isOffline: false, isServerDown: true, isConnecting: false });
+      } else {
+        set({ isOffline: true, isServerDown: false, isConnecting: false });
+      }
+    });
+
+    socket.on('disconnect', async (reason) => {
+      console.log('Socket disconnected. Reason:', reason);
+      if (reason === 'io client disconnect') {
+        set({ isConnecting: false, isOffline: false, isServerDown: false });
+        return;
+      }
+      
+      set({ isConnecting: true });
+      const hasInternet = await checkInternetConnectivity();
+      if (!hasInternet) {
+        set({ isOffline: true, isServerDown: false });
+      }
+    });
+
+    socket.on('reconnect_failed', async () => {
+      console.log('Socket reconnection failed completely.');
+      const hasInternet = await checkInternetConnectivity();
+      if (hasInternet) {
+        set({ isOffline: false, isServerDown: true, isConnecting: false });
+      } else {
+        set({ isOffline: true, isServerDown: false, isConnecting: false });
+      }
     });
 
     socket.on('room_created', ({ roomCode, player }) => {
@@ -297,13 +359,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   createRoom: () => {
-    const { socket, playerName } = get();
-    if (socket && playerName) socket.emit('create_room', { playerName });
+    const { socket, playerName, playerAvatar } = get();
+    if (socket && playerName) socket.emit('create_room', { playerName, avatar: playerAvatar });
   },
 
   joinRoom: (code) => {
-    const { socket, playerName, myId } = get();
-    if (socket && playerName) socket.emit('join_room', { roomCode: code, playerName, previousSocketId: myId });
+    const { socket, playerName, playerAvatar, myId } = get();
+    if (socket && playerName) socket.emit('join_room', { roomCode: code, playerName, avatar: playerAvatar, previousSocketId: myId });
   },
 
   startGame: () => {
@@ -396,6 +458,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       nightActions: {},
       messages: [],
       round: 0,
+      isOffline: false,
+      isServerDown: false,
+      isConnecting: false,
       settings: {
         mafiaCount: 1,
         hasPolice: true,
@@ -403,5 +468,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         revealRoles: true
       }
     });
+  },
+
+  reconnect: () => {
+    const { socket, lastConnectedUrl, connectSocket } = get();
+    if (socket) {
+      set({ isConnecting: true, isOffline: false, isServerDown: false });
+      socket.connect();
+    } else {
+      connectSocket(lastConnectedUrl || undefined);
+    }
   }
 }));

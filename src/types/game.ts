@@ -1,6 +1,7 @@
 export interface Player {
   id: string;
   name: string;
+  avatar?: string | null;
   role: string | null;
   isAlive: boolean;
   isHost: boolean;
