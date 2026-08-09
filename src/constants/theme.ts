@@ -7,6 +7,7 @@ export const COLORS = {
   gold: '#E8C06A',
   redAccent: '#8B2020',
   redBright: '#FF4A4A',
+  buttonPrimary: '#8B0000',
   textPrimary: '#F0E8D8',
   textMuted: '#6B5E4E',
   border: '#3A2E22',

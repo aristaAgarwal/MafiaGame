@@ -42,6 +42,11 @@ export default function App() {
   const reconnect = useGameStore((state) => state.reconnect);
 
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const loadPersistedData = useGameStore((state) => state.loadPersistedData);
+
+  React.useEffect(() => {
+    loadPersistedData();
+  }, []);
 
   const [fontsLoaded] = useFonts({
     Cinzel_400Regular,

@@ -1,9 +1,14 @@
 import { create } from 'zustand';
 import io, { Socket } from 'socket.io-client';
 import { Alert, Platform } from 'react-native';
+import { saveLocalProfile, getLocalProfile, GoogleUser, saveGoogleUser, clearGoogleUser, getGoogleUser, GeneralSettings, DEFAULT_GENERAL_SETTINGS, saveGeneralSettings, getGeneralSettings } from '../utils/storage';
 
-// Socket server URL from environment configuration with localhost fallback
-const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000';
+import { initDatabase, insertGameRecord, fetchGameHistory, fetchStatsSummary, GameRecord, StatsSummary } from '../utils/database';
+
+import { DEFAULT_SERVER_URL } from '../constants/config';
+
+// Socket server URL from environment configuration with backend fallback
+const SOCKET_URL = DEFAULT_SERVER_URL;
 
 export interface Player {
   id: string;
@@ -59,9 +64,19 @@ interface GameState {
   isServerDown: boolean;
   isConnecting: boolean;
   lastConnectedUrl: string | null;
+  googleUser: GoogleUser | null;
+  gameHistory: GameRecord[];
+  gameStats: StatsSummary | null;
+  generalSettings: GeneralSettings;
 
   setPlayerName: (name: string) => void;
   setPlayerAvatar: (avatar: string | null) => void;
+  signInWithGoogle: (user: GoogleUser) => Promise<void>;
+  signOutGoogle: () => Promise<void>;
+  loadPersistedData: () => Promise<void>;
+  addGameHistoryEntry: (entry: Omit<GameRecord, 'id' | 'date'>) => Promise<void>;
+  updateGeneralSettings: (settings: Partial<GeneralSettings>) => Promise<void>;
+
   showToast: (message: string) => void;
   connectSocket: (serverUrl?: string) => void;
   createRoom: () => void;
@@ -159,6 +174,11 @@ export const useGameStore = create<GameState>((set, get) => ({
   isServerDown: false,
   isConnecting: false,
   lastConnectedUrl: null,
+  googleUser: null,
+  gameHistory: [],
+  gameStats: null,
+  generalSettings: DEFAULT_GENERAL_SETTINGS,
+
   settings: {
     mafiaCount: 1,
     hasPolice: true,
@@ -171,8 +191,20 @@ export const useGameStore = create<GameState>((set, get) => ({
     firstNightShield: false
   },
 
-  setPlayerName: (name) => set({ playerName: name }),
-  setPlayerAvatar: (avatar) => set({ playerAvatar: avatar }),
+  setPlayerName: (name) => {
+    set({ playerName: name });
+    const { playerAvatar, googleUser } = get();
+    if (!googleUser) {
+      saveLocalProfile({ name, avatar: playerAvatar });
+    }
+  },
+  setPlayerAvatar: (avatar) => {
+    set({ playerAvatar: avatar });
+    const { playerName, googleUser } = get();
+    if (!googleUser) {
+      saveLocalProfile({ name: playerName, avatar });
+    }
+  },
 
   showToast: (message) => {
     set({ toast: message });
@@ -321,8 +353,32 @@ export const useGameStore = create<GameState>((set, get) => ({
       set({ policeResult: result });
     });
 
-    socket.on('game_ended', ({ room, winner }) => {
+    socket.on('game_ended', async ({ room, winner }) => {
       set({ players: room.players, phase: 'END', winner, votes: {}, nightActions: {}, round: room.round || get().round });
+      
+      // Auto-log game history on completion
+      const myId = get().myId;
+      if (myId && room.players && room.players[myId]) {
+        const player = room.players[myId];
+        const role = player.role || 'VILLAGER';
+        const isAlive = player.isAlive ? 1 : 0;
+        
+        let result: 'WIN' | 'LOSS' = 'LOSS';
+        if (role === 'MAFIA') {
+          result = winner === 'MAFIA' ? 'WIN' : 'LOSS';
+        } else {
+          result = winner === 'VILLAGERS' ? 'WIN' : 'LOSS';
+        }
+        
+        await get().addGameHistoryEntry({
+          room_code: get().roomCode || room.code || '',
+          role,
+          result,
+          is_alive: isAlive,
+          total_players: Object.keys(room.players).length,
+          round_reached: room.round || get().round || 1,
+        });
+      }
     });
 
     socket.on('room_reset', (room) => {
@@ -478,5 +534,78 @@ export const useGameStore = create<GameState>((set, get) => ({
     } else {
       connectSocket(lastConnectedUrl || undefined);
     }
+  },
+
+  loadPersistedData: async () => {
+    try {
+      await initDatabase();
+      const googleUser = await getGoogleUser();
+      const localProfile = await getLocalProfile();
+      const generalSettings = await getGeneralSettings();
+      const history = await fetchGameHistory();
+      const stats = await fetchStatsSummary();
+      
+      set({
+        generalSettings: generalSettings || DEFAULT_GENERAL_SETTINGS,
+        gameHistory: history,
+        gameStats: stats,
+      });
+
+      if (googleUser) {
+        set({
+          googleUser,
+          playerName: googleUser.name,
+          playerAvatar: googleUser.avatar,
+        });
+      } else if (localProfile) {
+        set({
+          playerName: localProfile.name,
+          playerAvatar: localProfile.avatar,
+        });
+      }
+    } catch (e) {
+      console.error('Failed to load persisted data:', e);
+    }
+  },
+
+  signInWithGoogle: async (user) => {
+    await saveGoogleUser(user);
+    set({
+      googleUser: user,
+      playerName: user.name,
+      playerAvatar: user.avatar,
+    });
+    // Refresh stats and history
+    const history = await fetchGameHistory();
+    const stats = await fetchStatsSummary();
+    set({ gameHistory: history, gameStats: stats });
+  },
+
+  signOutGoogle: async () => {
+    await clearGoogleUser();
+    const localProfile = await getLocalProfile();
+    set({
+      googleUser: null,
+      playerName: localProfile?.name || '',
+      playerAvatar: localProfile?.avatar || null,
+    });
+  },
+
+  addGameHistoryEntry: async (entry) => {
+    const record: GameRecord = {
+      id: String(Date.now()),
+      date: new Date().toISOString(),
+      ...entry,
+    };
+    await insertGameRecord(record);
+    const history = await fetchGameHistory();
+    const stats = await fetchStatsSummary();
+    set({ gameHistory: history, gameStats: stats });
+  },
+
+  updateGeneralSettings: async (newSettings) => {
+    const updated = { ...get().generalSettings, ...newSettings };
+    set({ generalSettings: updated });
+    await saveGeneralSettings(updated);
   }
 }));

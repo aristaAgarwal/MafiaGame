@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Image, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/theme';
+import { DEFAULT_SERVER_URL } from '../constants/config';
 
 interface PlayerAvatarProps {
   avatar?: string | null;
@@ -30,7 +31,7 @@ export default function PlayerAvatar({
       return avatarPath;
     }
     // Build full URL from server base
-    const base = serverUrl || process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000';
+    const base = serverUrl || DEFAULT_SERVER_URL;
     return `${base}${avatarPath}`;
   };
 

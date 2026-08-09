@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   primaryButton: {
-    backgroundColor: COLORS.redBright,
+    backgroundColor: COLORS.buttonPrimary,
   },
   secondaryButton: {
     backgroundColor: COLORS.surfaceElevated,

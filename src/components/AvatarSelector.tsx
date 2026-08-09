@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../constants/theme';
 import { useGameStore } from '../store/gameStore';
 import { BlurView } from 'expo-blur';
+import { DEFAULT_SERVER_URL } from '../constants/config';
 
 interface AvatarSelectorProps {
   visible: boolean;
@@ -49,7 +50,7 @@ export default function AvatarSelector({
         return socketUri.replace(/\/$/, '');
       }
     }
-    return serverUrl || process.env.EXPO_PUBLIC_SOCKET_URL || 'http://localhost:3000';
+    return serverUrl || DEFAULT_SERVER_URL;
   };
 
   const baseUrl = getBaseUrl();
