@@ -1,4 +1,9 @@
 pluginManagement {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
   def reactNativeGradlePlugin = new File(
     providers.exec {
       workingDir(rootDir)
@@ -36,4 +41,7 @@ rootProject.name = 'Mafia'
 expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
+include ':shared'
+project(':shared').projectDir = new File(rootDir, '../shared')
 includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
